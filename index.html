@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kitchen">
+<title>Kitchen</title>
+<!-- v1 -->
+<style>
+:root {
+  --bg: #000; --bg2: #1c1c1e; --bg3: #2c2c2e; --bg4: #3a3a3c;
+  --text: #fff; --text2: #ebebf5cc; --text3: #ebebf599;
+  --accent: #ff9f0a; --accent2: #30d158; --accent3: #0a84ff;
+  --accent4: #ff453a; --accent5: #bf5af2;
+  --sep: rgba(84,84,88,0.65); --card: #1c1c1e; --r: 16px;
+  --safe-top: env(safe-area-inset-top,44px); --safe-bot: env(safe-area-inset-bottom,34px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;background:var(--bg);color:var(--text);height:100dvh;overflow:hidden;display:flex;flex-direction:column}
+
+/* TOP BAR */
+.top-bar{padding:calc(var(--safe-top)+8px) 16px 10px;background:rgba(0,0,0,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:.5px solid var(--sep);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:10}
+.top-bar h1{font-size:22px;font-weight:700;letter-spacing:-.5px}
+.icon-btn{background:var(--bg3);border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--accent);flex-shrink:0}
+.icon-btn.spinning{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SEARCH */
+.search-bar{padding:10px 16px;background:rgba(0,0,0,.6);backdrop-filter:blur(10px);flex-shrink:0}
+.search-input{width:100%;background:var(--bg3);border:none;border-radius:12px;padding:10px 14px;color:var(--text);font-size:15px;font-family:inherit}
+.search-input:focus{outline:2px solid var(--accent)}
+.search-input::placeholder{color:var(--text3)}
+
+/* TAB BAR */
+.tab-bar{display:flex;border-top:.5px solid var(--sep);background:rgba(0,0,0,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding-bottom:var(--safe-bot);flex-shrink:0}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0 8px;background:none;border:none;color:var(--text3);font-size:10px;font-weight:500;cursor:pointer;gap:3px;transition:color .15s}
+.tab-btn.active{color:var(--accent)}
+.tab-icon{font-size:22px;line-height:1}
+
+/* CONTENT */
+.content{flex:1;overflow:hidden;position:relative}
+.tab-panel{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;padding:16px}
+.tab-panel.active{display:block}
+
+/* AUTH */
+#auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:100;padding:40px 32px}
+#auth-screen.hidden{display:none}
+.auth-icon{font-size:72px}
+.auth-title{font-size:30px;font-weight:700;text-align:center}
+.auth-sub{font-size:15px;color:var(--text3);text-align:center;line-height:1.5}
+.sign-in-btn{background:var(--accent);color:#000;border:none;border-radius:14px;padding:16px 48px;font-size:17px;font-weight:700;cursor:pointer;width:100%;max-width:300px}
+
+/* RECIPE CARDS */
+.recipe-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.recipe-card{background:var(--card);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:opacity .1s;position:relative}
+.recipe-card:active{opacity:.75}
+.recipe-card-body{padding:12px}
+.recipe-name{font-size:14px;font-weight:700;line-height:1.3;margin-bottom:4px}
+.recipe-meta{font-size:12px;color:var(--text3);margin-bottom:8px}
+.recipe-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.tag{font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(255,159,10,.18);color:var(--accent);font-weight:500}
+.add-btn-sm{background:var(--accent);border:none;border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#000;width:100%}
+.add-btn-sm.in-plan{background:var(--accent2);color:#000}
+.recipe-emoji{font-size:32px;height:56px;display:flex;align-items:center;justify-content:center;background:var(--bg3)}
+
+/* THIS WEEK */
+.week-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.week-title{font-size:20px;font-weight:700}
+.week-nav{display:flex;gap:8px}
+.nav-arrow{background:var(--bg3);border:none;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--accent)}
+.day-strip{background:var(--card);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
+.day-label{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:10px 14px 6px}
+.day-recipes{padding:0 10px 10px;display:flex;flex-wrap:wrap;gap:6px;min-height:30px}
+.recipe-chip{background:var(--bg3);border-radius:20px;padding:5px 10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px}
+.chip-remove{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:0}
+.day-empty{font-size:13px;color:var(--text3);padding:4px 4px 4px;font-style:italic}
+.on-deck-section{margin-bottom:16px}
+.section-title{font-size:18px;font-weight:700;margin-bottom:12px}
+.on-deck-chips{display:flex;flex-wrap:wrap;gap:8px}
+.deck-chip{background:rgba(255,159,10,.15);border:1.5px solid var(--accent);border-radius:20px;padding:7px 14px;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer;transition:all .15s}
+.deck-chip:active{opacity:.7}
+
+/* INSIGHTS */
+.insights-card{background:var(--bg2);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;border:1px solid rgba(48,209,88,.2)}
+.insights-title{font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px}
+.insight-row{font-size:13px;color:var(--text2);margin-bottom:4px;line-height:1.4}
+
+/* ACTION BUTTONS */
+.action-row{display:flex;gap:10px;margin-bottom:20px}
+.action-btn{flex:1;padding:14px 10px;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer}
+.btn-shop{background:var(--accent2);color:#000}
+.btn-email{background:var(--accent3);color:#fff}
+.btn-email:disabled{opacity:.5;cursor:not-allowed}
+
+/* SHOPPING LIST */
+.shop-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.shop-meta{font-size:14px;color:var(--text3)}
+.clear-btn{background:var(--bg3);border:none;border-radius:10px;padding:7px 14px;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer}
+.cat-group{margin-bottom:20px}
+.cat-title{font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;padding-bottom:6px;border-bottom:.5px solid var(--sep)}
+.shop-item{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:.5px solid rgba(84,84,88,.3)}
+.shop-item:last-child{border-bottom:none}
+.shop-cb{width:22px;height:22px;border-radius:50%;border:2px solid var(--bg4);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:1px;background:none}
+.shop-cb.checked{background:var(--accent2);border-color:var(--accent2)}
+.shop-cb.checked::after{content:'✓';color:#000;font-size:13px;font-weight:700}
+.shop-text{font-size:15px;line-height:1.4;flex:1}
+.shop-text.checked{text-decoration:line-through;color:var(--text3)}
+.shared-badge{font-size:11px;color:var(--accent5);font-weight:500;display:block;margin-top:2px}
+
+/* RECIPE DETAIL */
+.recipe-detail{position:fixed;inset:0;background:var(--bg);z-index:50;transform:translateX(100%);transition:transform .3s cubic-bezier(.25,.46,.45,.94);display:flex;flex-direction:column}
+.recipe-detail.open{transform:translateX(0)}
+.detail-header{padding:calc(var(--safe-top)+8px) 16px 12px;display:flex;align-items:center;gap:12px;border-bottom:.5px solid var(--sep);flex-shrink:0;background:var(--bg)}
+.back-btn{background:none;border:none;color:var(--accent3);font-size:17px;font-weight:500;cursor:pointer}
+.detail-title{font-size:17px;font-weight:700;flex:1}
+.detail-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 20px calc(var(--safe-bot)+20px)}
+.detail-meta-row{font-size:14px;color:var(--text3);margin-bottom:16px}
+.ingredient-group{margin-bottom:16px}
+.ing-group-name{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.8px;margin-bottom:6px}
+.ing-item{font-size:15px;color:var(--text2);padding:4px 0;border-bottom:.5px solid rgba(84,84,88,.2);display:flex;align-items:flex-start;gap:8px}
+.ing-item::before{content:'·';color:var(--accent);font-weight:700;flex-shrink:0;margin-top:1px}
+.detail-pdf-btn{display:block;background:var(--bg3);border:none;border-radius:12px;padding:14px;text-align:center;color:var(--accent3);font-size:15px;font-weight:600;cursor:pointer;margin:20px 0;text-decoration:none}
+.detail-add-btn{display:block;width:100%;background:var(--accent);border:none;border-radius:14px;padding:16px;color:#000;font-size:17px;font-weight:700;cursor:pointer;margin-bottom:8px}
+.detail-add-btn.in-plan{background:var(--bg3);color:var(--accent4)}
+
+/* DAY PICKER */
+.day-picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:80;display:flex;align-items:flex-end}
+.day-picker-overlay.hidden{display:none}
+.day-picker-sheet{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px 20px calc(var(--safe-bot)+20px);width:100%}
+.day-picker-title{font-size:17px;font-weight:700;text-align:center;margin-bottom:16px}
+.day-picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.day-pick-btn{background:var(--bg3);border:none;border-radius:12px;padding:12px 6px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;text-align:center}
+.day-pick-btn:active{opacity:.7}
+.day-pick-btn.on-deck{background:rgba(255,159,10,.2);color:var(--accent)}
+.dp-cancel{display:block;width:100%;background:var(--bg3);border:none;border-radius:14px;padding:14px;color:var(--text2);font-size:17px;font-weight:600;cursor:pointer;margin-top:10px}
+
+/* MISC */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px;text-align:center}
+.empty-icon{font-size:48px}
+.empty-title{font-size:20px;font-weight:700}
+.empty-sub{font-size:15px;color:var(--text3);line-height:1.5}
+.loading{display:flex;align-items:center;justify-content:center;padding:60px}
+.spinner{width:32px;height:32px;border:3px solid var(--bg3);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.toast{position:fixed;bottom:calc(var(--safe-bot)+70px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);color:var(--text);padding:12px 20px;border-radius:20px;font-size:14px;font-weight:500;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;z-index:200}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.sending-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:150;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.sending-overlay.hidden{display:none}
+.sending-text{font-size:16px;font-weight:600;color:#fff}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-icon">🍳</div>
+  <div class="auth-title">Kitchen</div>
+  <div class="auth-sub">Your recipe library, meal planner, and shopping list — all in one place.</div>
+  <button class="sign-in-btn" onclick="signIn()">Sign in with Microsoft</button>
+</div>
+
+<!-- SENDING OVERLAY -->
+<div class="sending-overlay hidden" id="sending-overlay">
+  <div class="spinner" style="border-top-color:#0a84ff"></div>
+  <div class="sending-text" id="sending-text">Building your meal plan email…</div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;height:100dvh;flex-direction:column">
+  <div class="top-bar">
+    <h1 id="top-title">🍳 Kitchen</h1>
+    <div style="display:flex;gap:8px">
+      <button class="icon-btn" id="refresh-btn" onclick="refreshApp()" title="Refresh">↻</button>
+    </div>
+  </div>
+  <div class="search-bar" id="search-bar" style="display:none">
+    <input class="search-input" id="search-input" type="search" placeholder="Search recipes…" oninput="filterRecipes(this.value)">
+  </div>
+  <div class="content">
+    <!-- BROWSE -->
+    <div class="tab-panel active" id="panel-browse">
+      <div id="recipe-grid-wrap"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+    <!-- THIS WEEK -->
+    <div class="tab-panel" id="panel-week">
+      <div id="week-content"></div>
+    </div>
+    <!-- SHOP -->
+    <div class="tab-panel" id="panel-shop">
+      <div id="shop-content"></div>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-browse" onclick="switchTab('browse')">
+      <span class="tab-icon">📖</span>Recipes
+    </button>
+    <button class="tab-btn" id="tab-week" onclick="switchTab('week')">
+      <span class="tab-icon">📅</span>This Week
+    </button>
+    <button class="tab-btn" id="tab-shop" onclick="switchTab('shop')">
+      <span class="tab-icon">🛒</span>Shop
+    </button>
+  </div>
+</div>
+
+<!-- RECIPE DETAIL -->
+<div class="recipe-detail" id="recipe-detail">
+  <div class="detail-header">
+    <button class="back-btn" onclick="closeDetail()">‹ Back</button>
+    <div class="detail-title" id="detail-title"></div>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<!-- DAY PICKER -->
+<div class="day-picker-overlay hidden" id="day-picker-overlay" onclick="closeDayPicker(event)">
+  <div class="day-picker-sheet" onclick="event.stopPropagation()">
+    <div class="day-picker-title">Add to which day?</div>
+    <div class="day-picker-grid" id="day-picker-grid"></div>
+    <button class="dp-cancel" onclick="closeDayPicker()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ───────────────────────────────────────────────────────────────────
+const CONFIG = {
+  CLIENT_ID: 'b57b9bbc-0e89-46e3-a965-752554acc461',
+  TENANT_ID: '0ae860f2-b1e0-4222-b0e1-37314eddf4df',
+  RECIPES_PATH: '0 - Data/Recipes',
+  INDEX_FILE:   '0 - Data/Recipes/recipes-index.json',
+  PLAN_FILE:    '0 - Data/Recipes/meal-plan.json',
+  SCOPES: 'Files.ReadWrite Mail.ReadWrite offline_access',
+  get REDIRECT_URI(){ return location.origin + location.pathname; }
+};
+
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const RECIPE_EMOJIS = ['🍝','🍗','🥘','🍜','🥗','🍳','🫕','🥩','🍤','🥙','🌮','🫔'];
+
+const DAD_JOKES = [
+  "Why did the chef get promoted? Because he had great seasoning.",
+  "I'm reading a book about anti-gravity cooking. It's impossible to put down.",
+  "Why do chefs always use exact measurements? Because cooking is a precise-ish art.",
+  "What do you call cheese that isn't yours? Nacho cheese.",
+  "Why did the tomato turn red? Because it saw the salad dressing.",
+  "I asked my dog what two minus two is. He said nothing.",
+  "What do you call a fake noodle? An impasta.",
+  "Why couldn't the bicycle stand up by itself? It was two-tired.",
+  "Did you hear about the Italian chef who died? He pasta way.",
+  "Why did the scarecrow win an award? Because he was outstanding in his field.",
+  "I'm on a seafood diet. I see food and I eat it.",
+  "What's a skeleton's least favorite room? The living room.",
+  "Why don't scientists trust atoms? Because they make up everything.",
+  "I used to hate facial hair, but then it grew on me.",
+  "What do you call a fish without eyes? A fsh.",
+  "Why did the cookie go to the doctor? It was feeling crummy.",
+  "What do you call a sad strawberry? A blueberry.",
+  "I'm afraid for the calendar. Its days are numbered.",
+  "Why don't eggs tell jokes? They'd crack each other up.",
+  "What do you call a sleeping dinosaur? A dino-snore.",
+  "How do you organize a space party? You planet.",
+  "Why can't you give Elsa a balloon? She'll let it go.",
+  "What's brown and sticky? A stick.",
+  "Why did the math book look so sad? It had too many problems.",
+  "I only know 25 letters of the alphabet. I don't know y.",
+  "What do you call a factory that makes okay products? A satisfactory.",
+  "Did you hear about the guy who invented Lifesavers? He made a mint.",
+  "What do you call a belt made of watches? A waist of time.",
+  "Why did the golfer bring extra socks? In case he got a hole in one.",
+  "What's the best thing about Switzerland? The flag is a big plus.",
+  "I told my wife she should embrace her mistakes. She gave me a hug.",
+  "Why can't a nose be 12 inches long? Because then it'd be a foot.",
+  "What do you call a pile of cats? A meowtain.",
+  "How does a penguin build its house? Igloos it together.",
+  "Why did the frog take the bus to work? His car got toad.",
+  "What do you call a bear with no teeth? A gummy bear.",
+  "Why can't Cinderella play soccer? She always runs away from the ball.",
+  "What did the ocean say to the beach? Nothing, it just waved.",
+  "Why did the invisible man turn down the job offer? He couldn't see himself doing it.",
+  "What do you call a man with a rubber toe? Roberto.",
+  "Why did the coffee file a police report? It got mugged.",
+  "What do sprinters eat before a race? Nothing — they fast.",
+  "Why did the stadium get hot after the game? All the fans left.",
+  "What's orange and sounds like a parrot? A carrot.",
+  "I wouldn't buy anything with velcro. It's a total rip-off.",
+  "Why do cows wear bells? Because their horns don't work.",
+  "What did one wall say to the other? I'll meet you at the corner.",
+  "What do you call a sleeping bull? A bull-dozer.",
+  "Why did the scarecrow win a Nobel Prize? He was outstanding in his field.",
+  "What did the janitor say when he jumped out of the closet? Supplies!"
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+const state = {
+  accessToken: null, tokenExpiry: 0,
+  index: { recipes: [] },
+  pdfFiles: [],
+  filteredRecipes: [],
+  plan: { week: '', assignments: {}, checked: {}, usedJokes: [] },
+  pendingAddFile: null,
+  currentTab: 'browse',
+};
+
+// ── PKCE AUTH ────────────────────────────────────────────────────────────────
+function b64url(b){ return btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
+function rand(n){ return b64url(crypto.getRandomValues(new Uint8Array(n))); }
+async function sha256(s){ return b64url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s))); }
+
+async function signIn(){
+  const v=rand(32), c=await sha256(v), st=rand(16);
+  localStorage.setItem('pkce_v',v); localStorage.setItem('pkce_s',st);
+  const p=new URLSearchParams({client_id:CONFIG.CLIENT_ID,response_type:'code',redirect_uri:CONFIG.REDIRECT_URI,response_mode:'query',scope:CONFIG.SCOPES,state:st,code_challenge:c,code_challenge_method:'S256'});
+  location.href=`https://login.microsoftonline.com/${CONFIG.TENANT_ID}/oauth2/v2.0/authorize?${p}`;
+}
+async function tokenPost(body){
+  const r=await fetch(`https://login.microsoftonline.com/${CONFIG.TENANT_ID}/oauth2/v2.0/token`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+  if(!r.ok) throw new Error('Token request failed');
+  return r.json();
+}
+function saveToken(d){
+  const exp=Date.now()+(d.expires_in-60)*1000;
+  localStorage.setItem('access_token',d.access_token);
+  if(d.refresh_token) localStorage.setItem('refresh_token',d.refresh_token);
+  localStorage.setItem('token_expiry',exp);
+  state.accessToken=d.access_token; state.tokenExpiry=exp;
+}
+async function exchangeCode(code){
+  const d=await tokenPost(new URLSearchParams({client_id:CONFIG.CLIENT_ID,grant_type:'authorization_code',code,redirect_uri:CONFIG.REDIRECT_URI,code_verifier:localStorage.getItem('pkce_v'),scope:CONFIG.SCOPES}));
+  saveToken(d); localStorage.removeItem('pkce_v'); localStorage.removeItem('pkce_s');
+}
+async function doRefresh(){
+  const rt=localStorage.getItem('refresh_token'); if(!rt) throw new Error('No refresh token');
+  saveToken(await tokenPost(new URLSearchParams({client_id:CONFIG.CLIENT_ID,grant_type:'refresh_token',refresh_token:rt,scope:CONFIG.SCOPES})));
+}
+async function getToken(){
+  if(state.accessToken&&Date.now()<state.tokenExpiry) return state.accessToken;
+  const t=localStorage.getItem('access_token'),e=+localStorage.getItem('token_expiry');
+  if(t&&Date.now()<e){state.accessToken=t;state.tokenExpiry=e;return t;}
+  await doRefresh(); return state.accessToken;
+}
+
+// ── GRAPH ────────────────────────────────────────────────────────────────────
+async function gfetch(path,opts={}){
+  const tok=await getToken();
+  return fetch(`https://graph.microsoft.com/v1.0${path}`,{...opts,headers:{Authorization:`Bearer ${tok}`,...(opts.headers||{})}});
+}
+async function readJSON(p){
+  const r=await gfetch(`/me/drive/root:/${encodeURIComponent(p)}:/content`);
+  if(r.status===404) return null; if(!r.ok) throw new Error('Read failed');
+  return r.json();
+}
+async function writeJSON(p,obj){
+  const r=await gfetch(`/me/drive/root:/${encodeURIComponent(p)}:/content`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj,null,2)});
+  if(!r.ok) throw new Error('Write failed');
+}
+async function listFolder(p){
+  const r=await gfetch(`/me/drive/root:/${encodeURIComponent(p)}:/children?$select=name,id&$top=200`);
+  if(!r.ok) throw new Error('List failed'); const d=await r.json(); return d.value||[];
+}
+async function getPdfBlob(filename){
+  const r=await gfetch(`/me/drive/root:/${encodeURIComponent(CONFIG.RECIPES_PATH+'/'+filename)}:/content`);
+  if(!r.ok) throw new Error('PDF fetch failed'); return r.blob();
+}
+async function blobToBase64(blob){
+  return new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result.split(',')[1]);fr.readAsDataURL(blob);});
+}
+
+// ── DATA ─────────────────────────────────────────────────────────────────────
+function recipeEmoji(name){ return RECIPE_EMOJIS[Math.abs(name.split('').reduce((a,c)=>a+c.charCodeAt(0),0))%RECIPE_EMOJIS.length]; }
+
+async function loadData(){
+  // Load recipe index
+  const idx=await readJSON(CONFIG.INDEX_FILE);
+  state.index = idx || {recipes:[]};
+  // List all PDFs in folder
+  const files=await listFolder(CONFIG.RECIPES_PATH);
+  state.pdfFiles=files.filter(f=>f.name.endsWith('.pdf')).map(f=>f.name);
+  // Merge: add any PDF not in index as a stub
+  const indexedNames=new Set(state.index.recipes.map(r=>r.filename));
+  for(const fn of state.pdfFiles){
+    if(!indexedNames.has(fn)){
+      state.index.recipes.push({
+        filename:fn, title:fn.replace(/\.pdf$/i,''),
+        servings:'?', prepTime:'?', tags:[], ingredientGroups:[]
+      });
+    }
+  }
+  // Load meal plan
+  const plan=await readJSON(CONFIG.PLAN_FILE);
+  if(plan) state.plan={...state.plan,...plan};
+  // Ensure current week
+  const wk=getWeekKey(); if(state.plan.week!==wk){state.plan.week=wk;state.plan.assignments={};state.plan.checked={};}
+  state.filteredRecipes=[...state.index.recipes];
+}
+
+function getWeekKey(){
+  const d=new Date(); d.setHours(0,0,0,0);
+  d.setDate(d.getDate()-((d.getDay()+6)%7)); // Monday
+  return d.toISOString().slice(0,10);
+}
+function weekLabel(){
+  const d=new Date(state.plan.week+'T00:00:00');
+  return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+}
+
+async function savePlan(){
+  try{ await writeJSON(CONFIG.PLAN_FILE,state.plan); }catch(e){ console.warn('Plan save failed',e); }
+}
+
+function selectedRecipes(){
+  return Object.keys(state.plan.assignments).filter(fn=>state.plan.assignments[fn]);
+}
+
+// ── INGREDIENT HELPERS ───────────────────────────────────────────────────────
+const CAT_KEYWORDS = {
+  'Produce':     ['onion','garlic','tomato','lemon','carrot','celery','zucchini','pepper','jalapeño','avocado','cilantro','parsley','basil','oregano','cherry'],
+  'Meat & Protein':['chicken','beef','pork','ground','pancetta','bacon','anchovy','shrimp','egg','sausage','anchov'],
+  'Dairy':       ['cheese','butter','milk','cream','feta','parmesan','cotija','sour cream'],
+  'Pasta & Grains':['pasta','penne','spaghetti','linguine','rice','bread','chip','tortilla','noodle'],
+  'Canned & Jarred':['salsa','crushed tomatoes','olive','caper','tomato paste','wine','can '],
+  'Pantry':      ['oil','salt','pepper','flakes','powder','oregano','seasoning','dried'],
+};
+
+function categorize(item){
+  const lc=item.toLowerCase();
+  for(const [cat,kws] of Object.entries(CAT_KEYWORDS)){
+    if(kws.some(k=>lc.includes(k))) return cat;
+  }
+  return 'Other';
+}
+
+function buildShoppingList(){
+  const sel=selectedRecipes();
+  // Map: ingredient string → {item, recipes[], category}
+  const items=[];
+  for(const fn of sel){
+    const recipe=state.index.recipes.find(r=>r.filename===fn);
+    if(!recipe||!recipe.ingredientGroups) continue;
+    for(const grp of recipe.ingredientGroups){
+      for(const item of grp.items){
+        const existing=items.find(i=>i.raw.toLowerCase()===item.toLowerCase());
+        if(existing){ existing.recipes.push(recipe.title); }
+        else{ items.push({raw:item,recipes:[recipe.title],category:categorize(item),checked:!!state.plan.checked[item]}); }
+      }
+    }
+  }
+  // Group by category
+  const grouped={};
+  for(const it of items){
+    (grouped[it.category]=grouped[it.category]||[]).push(it);
+  }
+  return grouped;
+}
+
+function computeInsights(){
+  const sel=selectedRecipes();
+  if(sel.length<2) return [];
+  // Build ingredient word sets per recipe
+  const sets={};
+  for(const fn of sel){
+    const r=state.index.recipes.find(r=>r.filename===fn); if(!r) continue;
+    const words=new Set();
+    for(const g of (r.ingredientGroups||[])) for(const i of g.items){
+      i.toLowerCase().replace(/^[\d\s\/\.]+/,'').split(/[\s,]+/).filter(w=>w.length>3).forEach(w=>words.add(w));
+    }
+    sets[r.title]=words;
+  }
+  const titles=Object.keys(sets);
+  const insights=[];
+  for(let i=0;i<titles.length;i++) for(let j=i+1;j<titles.length;j++){
+    const shared=[...sets[titles[i]]].filter(w=>sets[titles[j]].has(w));
+    if(shared.length>=2){
+      insights.push(`${titles[i]} + ${titles[j]} share ${shared.slice(0,3).join(', ')} and more — efficient combo!`);
+    }
+  }
+  if(insights.length===0&&sel.length>=2) insights.push('Good variety this week! Mix of proteins and flavors.');
+  return insights;
+}
+
+// ── RENDER BROWSE ─────────────────────────────────────────────────────────────
+function filterRecipes(q){
+  state.filteredRecipes=state.index.recipes.filter(r=>r.title.toLowerCase().includes(q.toLowerCase())||(r.tags||[]).some(t=>t.toLowerCase().includes(q.toLowerCase())));
+  renderBrowse();
+}
+
+function renderBrowse(){
+  const el=document.getElementById('recipe-grid-wrap');
+  const recipes=state.filteredRecipes;
+  if(!recipes.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No recipes found</div><div class="empty-sub">Try a different search or add recipes via Chef.</div></div>`;
+    return;
+  }
+  const inPlan=new Set(selectedRecipes());
+  let html='<div class="recipe-grid">';
+  recipes.forEach((r,i)=>{
+    const ip=inPlan.has(r.filename);
+    const tags=(r.tags||[]).slice(0,2).map(t=>`<span class="tag">${t}</span>`).join('');
+    html+=`<div class="recipe-card" onclick="openRecipeDetail(${i})">
+      <div class="recipe-emoji">${recipeEmoji(r.title)}</div>
+      <div class="recipe-card-body">
+        <div class="recipe-name">${r.title}</div>
+        <div class="recipe-meta">${r.prepTime||''} · serves ${r.servings||'?'}</div>
+        ${tags?`<div class="recipe-tags">${tags}</div>`:''}
+        <button class="add-btn-sm ${ip?'in-plan':''}" onclick="event.stopPropagation();quickAdd(${i})">${ip?'✓ In Plan':'+ Add to Week'}</button>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+// ── RECIPE DETAIL ─────────────────────────────────────────────────────────────
+function openRecipeDetail(filteredIdx){
+  const r=state.filteredRecipes[filteredIdx];
+  if(!r) return;
+  document.getElementById('detail-title').textContent=r.title;
+  const inPlan=!!state.plan.assignments[r.filename];
+  let html=`<div class="detail-meta-row">${r.prepTime?'⏱ '+r.prepTime+' · ':''} 🍽 Serves ${r.servings||'?'}</div>`;
+  if(r.tags&&r.tags.length) html+=`<div class="recipe-tags" style="margin-bottom:16px">${r.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`;
+  if(r.ingredientGroups&&r.ingredientGroups.length){
+    html+=`<div style="font-size:16px;font-weight:700;margin-bottom:12px">Ingredients</div>`;
+    for(const g of r.ingredientGroups){
+      html+=`<div class="ingredient-group">
+        <div class="ing-group-name">${g.name}</div>
+        ${g.items.map(i=>`<div class="ing-item">${i}</div>`).join('')}
+      </div>`;
+    }
+  } else {
+    html+=`<div class="empty-state" style="padding:20px 0"><div class="empty-icon">📋</div><div class="empty-sub">No ingredient data yet.<br>Add it to the recipe index to enable shopping list.</div></div>`;
+  }
+  // PDF button
+  html+=`<button class="detail-pdf-btn" onclick="openPdf('${r.filename.replace(/'/g,"\\'")}')">📄 View Full Recipe Card</button>`;
+  // Add/remove button
+  html+=`<button class="detail-add-btn ${inPlan?'in-plan':''}" id="detail-add-btn" onclick="toggleFromDetail('${r.filename.replace(/'/g,"\\'")}')">
+    ${inPlan?'✕ Remove from Plan':'+ Add to This Week'}</button>`;
+  document.getElementById('detail-body').innerHTML=html;
+  document.getElementById('recipe-detail').classList.add('open');
+}
+function closeDetail(){ document.getElementById('recipe-detail').classList.remove('open'); }
+
+async function openPdf(filename){
+  showToast('Loading PDF…');
+  try{
+    const blob=await getPdfBlob(filename);
+    const url=URL.createObjectURL(blob);
+    window.open(url,'_blank');
+  }catch(e){ showToast('Could not load PDF: '+e.message); }
+}
+
+function quickAdd(filteredIdx){
+  const r=state.filteredRecipes[filteredIdx];
+  if(state.plan.assignments[r.filename]){
+    delete state.plan.assignments[r.filename];
+    showToast(`Removed ${r.title}`);
+  } else {
+    showOpenDayPicker(r.filename);
+    return;
+  }
+  savePlan(); renderBrowse();
+}
+
+function toggleFromDetail(filename){
+  if(state.plan.assignments[filename]){
+    delete state.plan.assignments[filename];
+    showToast('Removed from plan');
+    document.getElementById('detail-add-btn').textContent='+ Add to This Week';
+    document.getElementById('detail-add-btn').classList.remove('in-plan');
+  } else {
+    showOpenDayPicker(filename,true);
+  }
+  savePlan(); renderBrowse();
+}
+
+// ── DAY PICKER ────────────────────────────────────────────────────────────────
+function showOpenDayPicker(filename, fromDetail=false){
+  state.pendingAddFile={filename,fromDetail};
+  const grid=document.getElementById('day-picker-grid');
+  grid.innerHTML=[...DAYS,'On Deck'].map(d=>`<button class="day-pick-btn ${d==='On Deck'?'on-deck':''}" onclick="assignDay('${d}')">${d==='On Deck'?'📋 On Deck':d.slice(0,3)}</button>`).join('');
+  document.getElementById('day-picker-overlay').classList.remove('hidden');
+}
+function assignDay(day){
+  const {filename,fromDetail}=state.pendingAddFile||{};
+  if(!filename){closeDayPicker();return;}
+  state.plan.assignments[filename]=day;
+  closeDayPicker();
+  savePlan(); renderBrowse();
+  const r=state.index.recipes.find(r=>r.filename===filename);
+  showToast(`${r?.title||filename} → ${day}`);
+  if(fromDetail){
+    document.getElementById('detail-add-btn').textContent='✕ Remove from Plan';
+    document.getElementById('detail-add-btn').classList.add('in-plan');
+  }
+}
+function closeDayPicker(e){
+  if(e&&e.target!==document.getElementById('day-picker-overlay')) return;
+  document.getElementById('day-picker-overlay').classList.add('hidden');
+  state.pendingAddFile=null;
+}
+
+// ── THIS WEEK ─────────────────────────────────────────────────────────────────
+function renderWeek(){
+  const sel=selectedRecipes();
+  const insights=computeInsights();
+  let html=`<div class="week-header"><div class="week-title">Week of ${weekLabel()}</div></div>`;
+
+  // Action buttons
+  html+=`<div class="action-row">
+    <button class="action-btn btn-shop" onclick="switchTab('shop');buildAndRenderShop()">🛒 Shopping List</button>
+    <button class="action-btn btn-email" id="email-btn" ${sel.length===0?'disabled':''} onclick="sendMealPlanEmail()">✉️ Email Plan</button>
+  </div>`;
+
+  // Insights
+  if(insights.length&&sel.length>=2){
+    html+=`<div class="insights-card"><div class="insights-title">💡 Smart Pairings</div>${insights.map(i=>`<div class="insight-row">• ${i}</div>`).join('')}</div>`;
+  }
+
+  // On Deck
+  const onDeck=sel.filter(fn=>state.plan.assignments[fn]==='On Deck');
+  if(onDeck.length){
+    html+=`<div class="on-deck-section"><div class="section-title">📋 On Deck</div><div class="on-deck-chips">`;
+    for(const fn of onDeck){
+      const r=state.index.recipes.find(r=>r.filename===fn);
+      html+=`<div class="deck-chip" onclick="reassignDay('${fn}')">${recipeEmoji(r?.title||fn)} ${r?.title||fn}</div>`;
+    }
+    html+=`</div></div>`;
+  }
+
+  // Days
+  html+=`<div class="section-title">📅 Days</div>`;
+  for(const day of DAYS){
+    const dayRecipes=sel.filter(fn=>state.plan.assignments[fn]===day);
+    html+=`<div class="day-strip"><div class="day-label">${day}</div><div class="day-recipes">`;
+    if(dayRecipes.length){
+      for(const fn of dayRecipes){
+        const r=state.index.recipes.find(r=>r.filename===fn);
+        html+=`<div class="recipe-chip">${recipeEmoji(r?.title||fn)} ${r?.title||fn}<button class="chip-remove" onclick="removeFromDay('${fn}')">×</button></div>`;
+      }
+    } else {
+      html+=`<div class="day-empty">Nothing planned</div>`;
+    }
+    html+=`</div></div>`;
+  }
+
+  if(sel.length===0){
+    html+=`<div class="empty-state"><div class="empty-icon">🗓</div><div class="empty-title">No meals planned yet</div><div class="empty-sub">Go to Recipes and tap "+ Add to Week" to build your plan.</div></div>`;
+  }
+
+  document.getElementById('week-content').innerHTML=html;
+}
+
+function removeFromDay(filename){
+  delete state.plan.assignments[filename];
+  savePlan(); renderWeek(); renderBrowse();
+}
+function reassignDay(filename){ showOpenDayPicker(filename); }
+
+// ── SHOP ─────────────────────────────────────────────────────────────────────
+function buildAndRenderShop(){
+  const grouped=buildShoppingList();
+  const sel=selectedRecipes();
+  const el=document.getElementById('shop-content');
+  if(sel.length===0){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Your cart is empty</div><div class="empty-sub">Plan some meals first, then come back here for your list.</div></div>`;
+    return;
+  }
+  const totalItems=Object.values(grouped).reduce((a,v)=>a+v.length,0);
+  const checkedCount=Object.values(grouped).flat().filter(i=>i.checked).length;
+  let html=`<div class="shop-header">
+    <div><div style="font-size:18px;font-weight:700">${sel.length} recipe${sel.length>1?'s':''}</div><div class="shop-meta">${checkedCount}/${totalItems} items checked</div></div>
+    <button class="clear-btn" onclick="clearChecks()">Clear checks</button>
+  </div>`;
+
+  const catOrder=['Produce','Meat & Protein','Dairy','Pasta & Grains','Canned & Jarred','Pantry','Other'];
+  for(const cat of catOrder){
+    const items=(grouped[cat]||[]);
+    if(!items.length) continue;
+    html+=`<div class="cat-group"><div class="cat-title">${cat}</div>`;
+    for(const it of items){
+      const ck=!!state.plan.checked[it.raw];
+      const shared=it.recipes.length>1;
+      html+=`<div class="shop-item">
+        <div class="shop-cb ${ck?'checked':''}" onclick="toggleCheck('${it.raw.replace(/'/g,"\\'")}')"></div>
+        <div>
+          <div class="shop-text ${ck?'checked':''}">${it.raw}</div>
+          ${shared?`<span class="shared-badge">Used in: ${it.recipes.join(' & ')}</span>`:''}
+        </div>
+      </div>`;
+    }
+    html+=`</div>`;
+  }
+  el.innerHTML=html;
+}
+
+function toggleCheck(raw){
+  if(state.plan.checked[raw]) delete state.plan.checked[raw];
+  else state.plan.checked[raw]=true;
+  savePlan(); buildAndRenderShop();
+}
+function clearChecks(){ state.plan.checked={}; savePlan(); buildAndRenderShop(); }
+
+// ── EMAIL ─────────────────────────────────────────────────────────────────────
+function getNextJoke(){
+  const used=new Set(state.plan.usedJokes||[]);
+  const available=DAD_JOKES.map((_,i)=>i).filter(i=>!used.has(i));
+  const pool=available.length?available:DAD_JOKES.map((_,i)=>i); // reset if all used
+  const idx=pool[Math.floor(Math.random()*pool.length)];
+  state.plan.usedJokes=[...used,idx].slice(-DAD_JOKES.length); // keep history bounded
+  return {joke:DAD_JOKES[idx],idx};
+}
+
+function buildEmailHTML(joke){
+  const sel=selectedRecipes();
+  const grouped=buildShoppingList();
+  const wkLabel=weekLabel();
+  // Build recipe schedule
+  const schedule=[];
+  for(const day of [...DAYS,'On Deck']){
+    const drs=sel.filter(fn=>(state.plan.assignments[fn]||'On Deck')===day).map(fn=>state.index.recipes.find(r=>r.filename===fn)?.title||fn);
+    if(drs.length) schedule.push({day,recipes:drs});
+  }
+  // Build shopping HTML
+  const catOrder=['Produce','Meat & Protein','Dairy','Pasta & Grains','Canned & Jarred','Pantry','Other'];
+  let shopHTML='';
+  for(const cat of catOrder){
+    const items=(grouped[cat]||[]);
+    if(!items.length) continue;
+    shopHTML+=`<div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #f0f0f0">${cat}</div>
+      ${items.map(it=>`<div style="padding:5px 0;font-size:14px;color:#333;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:16px;height:16px;border-radius:50%;border:1.5px solid #ddd;flex-shrink:0"></span>${it.raw}${it.recipes.length>1?` <span style="font-size:11px;color:#bf5af2">(shared)</span>`:''}</div>`).join('')}
+    </div>`;
+  }
+
+  return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+<div style="max-width:600px;margin:20px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08)">
+  <!-- HEADER -->
+  <div style="background:linear-gradient(135deg,#ff9f0a,#ff6b35);padding:32px 28px">
+    <div style="font-size:36px;margin-bottom:8px">🍳</div>
+    <h1 style="color:#fff;margin:0;font-size:28px;font-weight:800;letter-spacing:-.5px">Meal Plan</h1>
+    <p style="color:rgba(255,255,255,.85);margin:6px 0 0;font-size:15px">Week of ${wkLabel}</p>
+  </div>
+  <!-- SCHEDULE -->
+  <div style="padding:28px 28px 0">
+    <h2 style="font-size:16px;font-weight:700;color:#1a1a1a;margin:0 0 16px">📅 This Week's Lineup</h2>
+    ${schedule.map(({day,recipes})=>`
+    <div style="display:flex;align-items:flex-start;gap:16px;padding:10px 0;border-bottom:1px solid #f5f5f5">
+      <div style="font-size:13px;font-weight:700;color:#999;text-transform:uppercase;min-width:70px;padding-top:2px">${day==='On Deck'?'📋 On Deck':day.slice(0,3)}</div>
+      <div style="flex:1">${recipes.map(r=>`<div style="font-size:15px;color:#1a1a1a;font-weight:500;margin-bottom:2px">${r}</div>`).join('')}</div>
+    </div>`).join('')}
+  </div>
+  <!-- SHOPPING LIST -->
+  <div style="padding:24px 28px 0">
+    <h2 style="font-size:16px;font-weight:700;color:#1a1a1a;margin:0 0 16px">🛒 Shopping List</h2>
+    ${shopHTML}
+  </div>
+  <!-- ATTACHMENTS NOTE -->
+  <div style="margin:0 28px 24px;padding:14px 16px;background:#f8f9ff;border-radius:10px;border-left:3px solid #0a84ff">
+    <p style="margin:0;font-size:13px;color:#555">📎 <strong>${sel.length} recipe card${sel.length>1?'s are':' is'} attached</strong> as PDF${sel.length>1?'s':''} to this email.</p>
+  </div>
+  <!-- FOOTER / DAD JOKE -->
+  <div style="border-top:1px solid #f0f0f0;padding:20px 28px;background:#fffbf5;text-align:center">
+    <p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#ccc;text-transform:uppercase;letter-spacing:1px">😄 Dad Joke of the Week</p>
+    <p style="margin:0;font-size:15px;font-style:italic;color:#666;line-height:1.5">"${joke}"</p>
+  </div>
+  <!-- SIGNATURE -->
+  <div style="padding:16px 28px;text-align:center">
+    <p style="margin:0;font-size:11px;color:#ccc">Sent from your Kitchen app · Happy cooking!</p>
+  </div>
+</div></body></html>`;
+}
+
+async function sendMealPlanEmail(){
+  const sel=selectedRecipes();
+  if(!sel.length){showToast('Add some recipes first!');return;}
+  const overlay=document.getElementById('sending-overlay');
+  const sendText=document.getElementById('sending-text');
+  overlay.classList.remove('hidden');
+  try{
+    const {joke}=getNextJoke();
+    sendText.textContent='Building email body…';
+    const html=buildEmailHTML(joke);
+    sendText.textContent='Fetching recipe PDFs…';
+    const attachments=[];
+    for(const fn of sel){
+      try{
+        sendText.textContent=`Attaching ${fn}…`;
+        const blob=await getPdfBlob(fn);
+        const b64=await blobToBase64(blob);
+        attachments.push({'@odata.type':'#microsoft.graph.fileAttachment',name:fn,contentType:'application/pdf',contentBytes:b64});
+      }catch(e){console.warn('Attachment failed for',fn,e);}
+    }
+    sendText.textContent='Creating draft in Outlook…';
+    const recipes=sel.map(fn=>state.index.recipes.find(r=>r.filename===fn)?.title||fn);
+    const msg={
+      subject:`🍳 Meal Plan — Week of ${weekLabel()}`,
+      body:{contentType:'HTML',content:html},
+      isDraft:true,
+      attachments,
+    };
+    const tok=await getToken();
+    const r=await fetch('https://graph.microsoft.com/v1.0/me/messages',{
+      method:'POST',
+      headers:{Authorization:`Bearer ${tok}`,'Content-Type':'application/json'},
+      body:JSON.stringify(msg)
+    });
+    if(!r.ok){const err=await r.json();throw new Error(err.error?.message||r.status);}
+    await savePlan();
+    overlay.classList.add('hidden');
+    showToast('✅ Draft saved to Outlook!');
+  }catch(e){
+    overlay.classList.add('hidden');
+    showToast('Email failed: '+e.message);
+    console.error(e);
+  }
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+  document.getElementById('search-bar').style.display=tab==='browse'?'block':'none';
+  state.currentTab=tab;
+  if(tab==='week') renderWeek();
+  if(tab==='shop') buildAndRenderShop();
+}
+
+async function refreshApp(){
+  const btn=document.getElementById('refresh-btn');
+  btn.classList.add('spinning'); btn.disabled=true;
+  await loadData(); renderBrowse();
+  if(state.currentTab==='week') renderWeek();
+  if(state.currentTab==='shop') buildAndRenderShop();
+  btn.classList.remove('spinning'); btn.disabled=false;
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init(){
+  const params=new URLSearchParams(location.search);
+  const code=params.get('code'),st=params.get('state');
+  if(code){
+    if(st!==localStorage.getItem('pkce_s')){alert('Auth state mismatch.');return;}
+    history.replaceState({},'',location.pathname);
+    try{await exchangeCode(code);}catch(e){alert('Auth failed: '+e.message);return;}
+  }
+  const tok=localStorage.getItem('access_token');
+  const exp=+localStorage.getItem('token_expiry');
+  if(!tok||Date.now()>=exp){
+    try{await doRefresh();}
+    catch{
+      document.getElementById('auth-screen').classList.remove('hidden');
+      document.getElementById('app').style.display='none';
+      return;
+    }
+  } else {state.accessToken=tok;state.tokenExpiry=exp;}
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('app').style.display='flex';
+  await loadData();
+  renderBrowse();
+}
+init();
+</script>
+</body>
+</html>
