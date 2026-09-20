@@ -289,6 +289,23 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,"SF Pro Text","Helve
 .tab-btn.active::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:30px;height:2.5px;border-radius:3px;background:var(--accent);box-shadow:0 0 10px rgba(201,162,75,.55)}
 .tab-ic{display:grid;place-items:center}
 .tab-ic svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;display:block}
+
+/* ---- OPTION 3 PHOTO CARDS ---- */
+.recipe-grid{background:transparent;box-shadow:none;gap:12px;border-radius:0;overflow:visible}
+.pcard{position:relative;height:158px;border-radius:16px;overflow:hidden;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.5);border:1px solid var(--sep);background:#141210}
+.pcard-fill{position:absolute;inset:0;display:grid;place-items:center;z-index:0}
+.pcard-emoji{font-size:54px;opacity:.85;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
+.pcard .thumb-img{z-index:1}
+.pcard-shade{position:absolute;inset:0;z-index:2;background:linear-gradient(90deg,rgba(9,8,7,.9) 0%,rgba(9,8,7,.5) 42%,rgba(9,8,7,.08) 72%),linear-gradient(0deg,rgba(9,8,7,.94),rgba(9,8,7,.08) 60%)}
+.pcard-cap{position:absolute;left:16px;right:16px;bottom:13px;z-index:3}
+.pcard-lab{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent3);font-weight:700}
+.pcard-name{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:20px;color:#fff;margin-top:3px;line-height:1.06;text-shadow:0 2px 14px rgba(0,0,0,.65)}
+.pcard .in-plan-badge{z-index:3}
+.wday{margin-bottom:18px}
+.wday-label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent3);margin:0 2px 8px}
+.wday .pcard+.pcard{margin-top:8px}
+.wcard-x{position:absolute;top:9px;right:9px;z-index:4;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.16);color:#fff;font-size:14px;cursor:pointer;display:grid;place-items:center}
+.wempty{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card);border:1px solid var(--sep);border-radius:14px;padding:13px 15px;font-size:13px;color:var(--text3);font-style:italic}
 </style>
 </head>
 <body>
@@ -899,13 +916,55 @@ function getThumbUrl(r){
   return r.thumbnailUrl;
 }
 
+// ── STOCK PHOTOS (auto image based on the dish description) ──────────────────
+// Custom photos uploaded via "Add photo" always win. To use a different stock
+// provider, just change STOCK_IMG_BASE below.
+function _hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}return Math.abs(h);}
+function dishKeywords(r){
+  const t=(r.title||'').toLowerCase(), tags=(r.tags||[]).map(x=>x.toLowerCase());
+  const has=(...ws)=>ws.some(w=>t.includes(w)||tags.includes(w));
+  const map=[
+    [['tikka','masala','curry','changezi','tandoori','biryani'],'indian,curry'],
+    [['khao soi','pho','tom yum','laksa','ramen','wonton'],'noodle,soup'],
+    [['pad thai','stir fry','stir-fry','mongolian','chili beef','lo mein','fried rice','chow mein','teriyaki'],'asian,stirfry'],
+    [['sushi','sashimi','poke'],'sushi,japanese'],
+    [['taco','burrito','quesadilla','enchilada','chilaquiles','fajita','carnitas'],'mexican,food'],
+    [['gumbo','jambalaya','shrimp','grits','cioppino','crab','lobster','scallop','seafood'],'seafood,dish'],
+    [['bolognese','carbonara','pasta','penne','spaghetti','lasagna','radiatori','puttanesca','pesto','risotto','fettuccine','rigatoni'],'pasta,italian'],
+    [['pizza','flatbread','margherita','calzone'],'pizza,food'],
+    [['burger','cheeseburger','grilled cheese','sandwich','slider'],'burger,food'],
+    [['chili','brisket','bbq','ribs','steak','pork chop','shepherd','pot roast','meatloaf'],'grilled,meat'],
+    [['soup','stew','chowder','bisque'],'soup,bowl'],
+    [['salad','lettuce wrap','buddha bowl','grain bowl'],'salad,healthy'],
+    [['smoothie','shake'],'smoothie,drink'],
+    [['wing','nugget','chicken'],'chicken,dish'],
+    [['tomato','vegetable','veggie','vegan','vegetarian','chickpea','tofu','eggplant','mushroom'],'vegetables,dish'],
+    [['egg','omelet','breakfast','pancake','waffle'],'breakfast,food'],
+  ];
+  for(const [ws,kw] of map){ if(has(...ws)) return kw; }
+  const cuisines=['italian','indian','asian','thai','mexican','american','vietnamese','chinese','japanese','korean','mediterranean','british','french','spanish'];
+  const c=tags.find(x=>cuisines.includes(x));
+  if(c) return c+',food';
+  const words=t.replace(/[^a-z ]/g,' ').split(/\s+/).filter(w=>w.length>3).slice(0,2);
+  return (words.join(',')||'gourmet')+',food';
+}
+const STOCK_IMG_BASE='https://loremflickr.com/600/400/';
+function stockPhotoFor(r){ return STOCK_IMG_BASE+encodeURIComponent(dishKeywords(r))+'?lock='+(_hashStr(r.filename||r.title||'x')%100000); }
+function photoLabel(r){
+  const cuisines=['Italian','Indian','Thai','Mexican','American','Vietnamese','Chinese','Japanese','Korean','Mediterranean','British','French','Asian','Spanish'];
+  const tag=(r.tags||[]).map(x=>x.toLowerCase());
+  const c=cuisines.find(x=>tag.includes(x.toLowerCase()));
+  const time=(r.prepTime&&r.prepTime!=='?')?r.prepTime:'';
+  return [c?c.toUpperCase():'', time].filter(Boolean).join(' · ');
+}
+
 function thumbImgTag(r, extraClass=''){
   const url=getThumbUrl(r);
   if(url) return `<img class="thumb-img ${extraClass}" src="${url}" onerror="this.remove()" loading="lazy">`;
   if(r.thumbnailUrl&&r.thumbnailUrl.startsWith('graph://')){
     return `<img class="thumb-img ${extraClass}" data-graph-path="${r.thumbnailUrl.replace('graph://','')}" onerror="this.remove()" loading="lazy">`;
   }
-  return '';
+  return `<img class="thumb-img ${extraClass}" src="${stockPhotoFor(r)}" onerror="this.remove()" loading="lazy">`;
 }
 
 // Load images that require auth tokens (graph:// URLs)
@@ -999,17 +1058,15 @@ function renderBrowse(){
       const tags=(r.tags||[]).slice(0,2).map(t=>`<span class="tag ${tagClass(t)}">${t}</span>`).join('');
       const desc=ingredientPreview(r);
       const prepTime=r.prepTime&&r.prepTime!=='?'?r.prepTime:'';
-      html+=`<div class="recipe-card" onclick="openRecipeDetail(${i})">
-        <div class="recipe-thumb" style="background:linear-gradient(135deg,${recipeGradient(r.title).join(',')})">
-          ${thumbImgTag(r)}
-          <div class="thumb-emoji" style="font-size:40px">${recipeEmoji(r.title)}</div>
-          ${ip?'<div class="in-plan-badge">In your plan</div>':''}
-        </div>
-        <div class="recipe-card-body">
-          <div class="recipe-name">${r.title}</div>
-          ${desc?`<div class="recipe-desc">${desc}</div>`:''}
-          ${prepTime?`<div class="recipe-meta">⏱ ${prepTime}</div>`:''}
-          ${tags?`<div class="recipe-tags">${tags}</div>`:''}
+      html+=`<div class="pcard" onclick="openRecipeDetail(${i})">
+        <div class="pcard-fill" style="background:linear-gradient(135deg,${recipeGradient(r.title).join(',')})"><span class="pcard-emoji">${recipeEmoji(r.title)}</span></div>
+        ${thumbImgTag(r,'pcard-img')}
+        <div class="pcard-shade"></div>
+        ${ip?'<div class="in-plan-badge">In your plan</div>':''}
+        <div class="pcard-cap">
+          ${photoLabel(r)?`<div class="pcard-lab">${photoLabel(r)}</div>`:''}
+          <div class="pcard-name">${r.title}</div>
+          ${tags?`<div class="recipe-tags" style="margin-top:8px">${tags}</div>`:''}
         </div>
       </div>`;
     });
@@ -1104,6 +1161,11 @@ function openRecipeDetail(filteredIdx){
 }
 
 function closeDetail(){ document.getElementById('recipe-detail').classList.remove('open'); }
+function openRecipeFile(fn){
+  let i=state.filteredRecipes.findIndex(r=>r.filename===fn);
+  if(i<0){ state.filteredRecipes=[...state.index.recipes]; i=state.filteredRecipes.findIndex(r=>r.filename===fn); }
+  if(i>=0) openRecipeDetail(i);
+}
 
 // ── PHOTO UPLOAD ─────────────────────────────────────────────────────────────
 let _photoUploadFilename=null;
@@ -1435,22 +1497,31 @@ function renderWeek(){
     html+=`</div></div>`;
   }
 
-  html+=`<div class="section-title">📅 Days</div>`;
   for(const day of DAYS){
     const dayRecipes=sel.filter(fn=>state.plan.assignments[fn]===day);
-    html+=`<div class="day-strip"><div class="day-label">${day}</div><div class="day-recipes">`;
     const isOtherPlans=!!(state.plan.otherPlans||{})[day];
+    html+=`<div class="wday"><div class="wday-label">${day}</div>`;
     if(dayRecipes.length){
       for(const fn of dayRecipes){
-        const r=state.index.recipes.find(r=>r.filename===fn);
-        html+=`<div class="recipe-chip">${recipeEmoji(r?.title||fn)} ${r?.title||fn}<button class="chip-remove" onclick="removeFromDay('${fn}')">×</button></div>`;
+        const r=state.index.recipes.find(r=>r.filename===fn)||{title:fn,filename:fn,tags:[]};
+        const sf=fn.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+        html+=`<div class="pcard wcard" onclick="openRecipeFile('${sf}')">
+          <div class="pcard-fill" style="background:linear-gradient(135deg,${recipeGradient(r.title).join(',')})"><span class="pcard-emoji">${recipeEmoji(r.title)}</span></div>
+          ${thumbImgTag(r,'pcard-img')}
+          <div class="pcard-shade"></div>
+          <button class="wcard-x" onclick="event.stopPropagation();removeFromDay('${sf}')" title="Remove">✕</button>
+          <div class="pcard-cap">
+            ${photoLabel(r)?`<div class="pcard-lab">${photoLabel(r)}</div>`:''}
+            <div class="pcard-name">${r.title}</div>
+          </div>
+        </div>`;
       }
     } else if(isOtherPlans){
-      html+=`<div class="day-other-plans"><span class="day-other-label">🍽 Other plans</span><button class="day-other-undo" onclick="clearOtherPlans('${day}')">undo</button></div>`;
+      html+=`<div class="wempty"><span class="day-other-label">🍽 Other plans</span><button class="day-other-undo" onclick="clearOtherPlans('${day}')">undo</button></div>`;
     } else {
-      html+=`<div class="day-empty"><span>Nothing planned</span><button class="day-other-btn" onclick="setOtherPlans('${day}')">Other plans</button></div>`;
+      html+=`<div class="wempty"><span>Nothing planned</span><button class="day-other-btn" onclick="setOtherPlans('${day}')">Other plans</button></div>`;
     }
-    html+=`</div></div>`;
+    html+=`</div>`;
   }
 
   if(sel.length===0){
