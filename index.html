@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Gronniger Chef">
@@ -306,6 +306,12 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,"SF Pro Text","Helve
 .wday .pcard+.pcard{margin-top:8px}
 .wcard-x{position:absolute;top:9px;right:9px;z-index:4;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.16);color:#fff;font-size:14px;cursor:pointer;display:grid;place-items:center}
 .wempty{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card);border:1px solid var(--sep);border-radius:14px;padding:13px 15px;font-size:13px;color:var(--text3);font-style:italic}
+
+/* ---- APP LOCK: no page float, no zoom, trim bottom gap ---- */
+html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:manipulation}
+#app{height:100%!important}
+.tab-panel,.detail-body,.pdf-body,#shop-content,#week-content,.results,.day-picker-sheet,.recipe-detail{overscroll-behavior:contain}
+.tab-bar{padding-top:5px;padding-bottom:max(env(safe-area-inset-bottom,0px),8px)}
 </style>
 </head>
 <body>
@@ -415,6 +421,12 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,"SF Pro Text","Helve
 <script>
 // ── PDF.JS ────────────────────────────────────────────────────────────────────
 const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ── APP LOCK: block pinch-zoom gestures (feels like a native app) ────────────
+['gesturestart','gesturechange','gestureend'].forEach(function(ev){
+  document.addEventListener(ev,function(e){e.preventDefault();},{passive:false});
+});
+document.addEventListener('touchmove',function(e){ if(e.touches&&e.touches.length>1) e.preventDefault(); },{passive:false});
 
 // ── CONFIG ───────────────────────────────────────────────────────────────────
 const CONFIG = {
