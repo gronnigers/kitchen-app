@@ -311,11 +311,9 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,"SF Pro Text","Helve
 .wempty{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card);border:1px solid var(--sep);border-radius:14px;padding:13px 15px;font-size:13px;color:var(--text3);font-style:italic}
 
 /* ---- APP LOCK: no page float, no zoom, trim bottom gap ---- */
-html{height:100%;overflow:hidden}body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:manipulation}
-#app{height:100%!important}
+html{overflow:hidden}body{overscroll-behavior:none;touch-action:manipulation}
 .tab-panel,.detail-body,.pdf-body,#shop-content,#week-content,.results,.day-picker-sheet,.recipe-detail{overscroll-behavior:contain}
-.tab-bar{position:fixed;left:0;right:0;bottom:0;z-index:40;padding-top:10px;padding-bottom:max(env(safe-area-inset-bottom,0px),8px)}
-.tab-panel{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+.tab-bar{padding-top:8px;padding-bottom:max(env(safe-area-inset-bottom,0px),8px)}
 .tab-btn{padding:8px 0 4px}
 </style>
 </head>
@@ -358,7 +356,7 @@ html{height:100%;overflow:hidden}body{position:fixed;inset:0;width:100%;height:1
 <!-- APP -->
 <div id="app" style="display:none;height:100dvh;flex-direction:column">
   <div class="top-bar">
-    <h1>🍳 Kitchen<span style="font-size:10px;color:var(--text3);font-weight:700;margin-left:7px;vertical-align:middle;letter-spacing:.05em">v6</span></h1>
+    <h1>🍳 Kitchen<span style="font-size:10px;color:var(--text3);font-weight:700;margin-left:7px;vertical-align:middle;letter-spacing:.05em">v7</span></h1>
     <button class="icon-btn" id="refresh-btn" onclick="refreshApp()" title="Refresh">↻</button>
   </div>
   <div class="search-bar" id="search-bar" style="display:none">
