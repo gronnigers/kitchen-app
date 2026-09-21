@@ -330,6 +330,10 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
 .tab-panel{position:static;inset:auto;height:auto;overflow:visible;padding:16px 16px calc(var(--tabh) + var(--sab) + 18px)}
 .tab-bar{position:fixed;left:0;right:0;bottom:0;z-index:40;padding-top:8px;padding-bottom:calc(8px + var(--sab));background:var(--bg2)}
 #recipe-grid-wrap > .empty-state,#week-content > .empty-state,#shop-content > .empty-state{min-height:calc(100dvh - 220px);justify-content:center}
+/* status-bar + home-indicator clearance for full-screen overlays */
+.detail-header{padding-top:calc(max(env(safe-area-inset-top,0px),55px) + 6px)}
+.pdf-nav{padding-top:calc(max(env(safe-area-inset-top,0px),55px) + 6px)}
+.detail-content{padding-bottom:calc(max(env(safe-area-inset-bottom,0px),20px) + 28px)}
 /* ---- Tablet / desktop ---- */
 @media(min-width:860px){
   .content{max-width:900px;margin:0 auto;width:100%}
@@ -379,7 +383,7 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
 <!-- APP -->
 <div id="app" style="display:none;height:100dvh;flex-direction:column">
   <div class="top-bar">
-    <h1>🍳 Kitchen<span style="font-size:10px;color:var(--text3);font-weight:700;margin-left:7px;vertical-align:middle;letter-spacing:.05em">v11</span></h1>
+    <h1>🍳 Kitchen<span style="font-size:10px;color:var(--text3);font-weight:700;margin-left:7px;vertical-align:middle;letter-spacing:.05em">v12</span></h1>
     <button class="icon-btn" id="refresh-btn" onclick="refreshApp()" title="Refresh">↻</button>
   </div>
   <div class="search-bar" id="search-bar" style="display:none">
