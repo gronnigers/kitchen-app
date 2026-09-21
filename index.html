@@ -439,6 +439,47 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
   .cook-body{padding:50px}
   .recipe-detail{max-width:900px;margin:0 auto}
 }
+
+/* ================= PANTRY TAB ================= */
+.pan-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2px}
+.pan-head .pt{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:23px;display:flex;align-items:baseline;gap:9px}
+.pan-head .pt .c{font-family:'DM Sans';font-size:12px;font-weight:700;color:var(--text3)}
+.pan-editbtn{background:var(--card);border:1px solid var(--sep);color:var(--accent);border-radius:20px;padding:8px 15px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.pan-editbtn.on{background:var(--accent);border-color:var(--accent);color:#171207}
+.pan-sub{font-size:12.5px;color:var(--text3);margin-bottom:6px}
+.pan-grp{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:800;color:var(--accent3);margin:18px 3px 4px}
+.pan-grp .ct{margin-left:auto;font-size:10px;color:var(--text3);letter-spacing:0;font-weight:700}
+.pan-row{display:flex;align-items:center;gap:11px;padding:12px 3px;border-bottom:1px solid #1b1810;font-size:14px;transition:background .3s,opacity .25s,transform .25s}
+.pan-row .pdot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;background:var(--good)}
+.pan-row.low .pdot{background:var(--accent3)}
+.pan-row .pnm{flex:1;color:#ddd4c4;min-width:0}
+.pan-row .pnm input{width:100%;background:#0a0806;border:1px solid var(--accent);border-radius:7px;padding:6px 8px;color:var(--text);font:inherit;font-size:14px;outline:none}
+.pan-pill{font-size:10px;font-weight:800;padding:5px 11px;border-radius:20px;letter-spacing:.03em;cursor:pointer;white-space:nowrap;border:1px solid transparent;user-select:none}
+.pan-pill.good{background:var(--goodbg);color:var(--good);border-color:var(--goodln)}
+.pan-pill.low{background:#372a17;color:#e0a24e;border-color:#5a4423}
+.pan-pill:active{transform:scale(.94)}
+.pan-del{width:24px;height:24px;flex:0 0 auto;border-radius:50%;background:var(--accent4);color:#2a120b;font-size:16px;font-weight:800;display:grid;place-items:center;cursor:pointer;line-height:1}
+.pan-row.leaving{opacity:0;transform:translateX(40px)}
+.pan-row.flash{animation:iflash 1.1s ease}
+.pan-hint{font-size:10.5px;color:#5c574c;font-style:italic;padding:6px 3px 0}
+.pan-fab{position:fixed;right:18px;bottom:calc(var(--tabh) + var(--sab) + 12px);width:56px;height:56px;border-radius:50%;background:var(--accent);color:#171207;font-size:30px;font-weight:400;display:grid;place-items:center;box-shadow:0 10px 26px rgba(201,162,75,.4);cursor:pointer;z-index:35;transition:transform .15s}
+.pan-fab:active{transform:scale(.9)}
+@media(min-width:860px){.pan-fab{right:calc(50% - 270px)}}
+.pan-scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:88;opacity:0;pointer-events:none;transition:opacity .25s}
+.pan-scrim.open{opacity:1;pointer-events:auto}
+.pan-sheet{position:fixed;left:0;right:0;bottom:0;z-index:89;background:var(--bg2);border-top:1px solid #2a2419;border-radius:22px 22px 0 0;padding:18px 18px calc(var(--safe-bot) + 18px);transform:translateY(110%);transition:transform .28s cubic-bezier(.25,.46,.45,.94);box-shadow:0 -14px 40px rgba(0,0,0,.5)}
+.pan-sheet.open{transform:translateY(0)}
+.pan-sheet .pan-sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.pan-sheet .pan-sh b{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:18px}
+.pan-sheet .pan-sh .pan-x{color:var(--text3);font-size:18px;cursor:pointer}
+.pan-txt{width:100%;background:var(--bg3);border:1px solid var(--sep);border-radius:11px;padding:13px 14px;color:var(--text);font:inherit;font-size:15px;outline:none;margin-bottom:12px}
+.pan-txt:focus{border-color:var(--accent)}
+.pan-catrow{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.pan-catp{background:#1d1a12;border:1px solid #2b2617;color:#cdc4b4;border-radius:20px;padding:8px 13px;font-size:12px;font-weight:700;cursor:pointer}
+.pan-catp.on{background:var(--accent);border-color:var(--accent);color:#171207}
+.pan-addgo{width:100%;background:var(--accent);border:0;border-radius:13px;padding:14px 0;color:#171207;font:inherit;font-weight:800;font-size:15px;cursor:pointer}
+.pan-addgo:active{transform:scale(.98)}
+@media(min-width:860px){.pan-sheet{left:50%;transform:translateX(-50%) translateY(110%);width:min(560px,94vw);border-radius:22px}.pan-sheet.open{transform:translateX(-50%) translateY(0)}}
 </style>
 </head>
 <body>
@@ -480,7 +521,7 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
 <!-- APP -->
 <div id="app" style="display:none;height:100dvh;flex-direction:column">
   <div class="top-bar">
-    <h1>🍳 Kitchen<span style="font-size:10px;color:var(--text3);font-weight:700;margin-left:7px;vertical-align:middle;letter-spacing:.05em">v13</span></h1>
+    <h1>🍳 Kitchen<span style="font-size:10px;color:var(--text3);font-weight:700;margin-left:7px;vertical-align:middle;letter-spacing:.05em">v14</span></h1>
     <button class="icon-btn" id="refresh-btn" onclick="refreshApp()" title="Refresh">↻</button>
   </div>
   <div class="search-bar" id="search-bar" style="display:none">
@@ -506,6 +547,9 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
     <div class="tab-panel" id="panel-shop">
       <div id="shop-content"></div>
     </div>
+    <div class="tab-panel" id="panel-pantry">
+      <div id="pantry-content"></div>
+    </div>
   </div>
   <div class="tab-bar">
     <button class="tab-btn active" id="tab-browse" onclick="switchTab('browse')">
@@ -516,6 +560,9 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
     </button>
     <button class="tab-btn" id="tab-shop" onclick="switchTab('shop')">
       <span class="tab-ic"><svg viewBox="0 0 24 24"><circle cx="9.5" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2.2l2.1 11a1.4 1.4 0 0 0 1.4 1.1h8.1a1.4 1.4 0 0 0 1.4-1.1L21 7.6H6.3"/></svg></span>Shop
+    </button>
+    <button class="tab-btn" id="tab-pantry" onclick="switchTab('pantry')">
+      <span class="tab-ic"><svg viewBox="0 0 24 24"><path d="M4 3.5h16v4H4z"/><path d="M5 7.5v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-12"/><line x1="10" y1="11.5" x2="14" y2="11.5"/></svg></span>Pantry
     </button>
   </div>
 </div>
@@ -560,6 +607,15 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
     <div class="day-picker-grid" id="day-picker-grid"></div>
     <button class="dp-cancel" onclick="closeDayPicker()">Cancel</button>
   </div>
+</div>
+
+<!-- PANTRY ADD SHEET -->
+<div class="pan-scrim" id="pan-scrim" onclick="closePantrySheet()"></div>
+<div class="pan-sheet" id="pan-sheet">
+  <div class="pan-sh"><b>Add to pantry</b><span class="pan-x" onclick="closePantrySheet()">✕</span></div>
+  <input class="pan-txt" id="pan-newname" placeholder="e.g., garlic powder" onkeydown="if(event.key==='Enter')doPantryAdd()">
+  <div class="pan-catrow" id="pan-catrow"></div>
+  <button class="pan-addgo" onclick="doPantryAdd()">Add to pantry</button>
 </div>
 
 <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoSelect(event)">
@@ -2210,6 +2266,106 @@ async function sendMealPlanEmail(){
 }
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
+// ── PANTRY TAB ────────────────────────────────────────────────────────────────
+// A pantry item is "Running Low" exactly when it's on the shopping list, so
+// flagging low auto-adds it and checking it off in Shop stocks it back up.
+const STD_PAN_GROUPS=['Oils & Vinegars','Sauces & Pastes','Spices & Dry','Produce','Meat & Protein','Dairy','Staples','Added by app'];
+let _panEdit=false, _panCat='Staples', _panFlash=null;
+function capWords(s){ return (s||'').replace(/\b\w/g,c=>c.toUpperCase()); }
+function panKey(raw){ return parseIngredient(raw).nameKey||raw.toLowerCase(); }
+function panIsLow(raw){ return !!state.plan.shopping[panKey(raw)]; }
+function panTotal(){ return state.pantryGroups.reduce((a,g)=>a+g.items.length,0); }
+
+function renderPantry(){
+  const el=document.getElementById('pantry-content');
+  const total=panTotal();
+  let h=`<div class="pan-head">
+    <div><div class="pt">Pantry <span class="c">${total} item${total!==1?'s':''}</span></div>
+    <div class="pan-sub">${_panEdit?'Rename, or remove':'Tap a status to flag it low'}</div></div>
+    <button class="pan-editbtn ${_panEdit?'on':''}" onclick="togglePantryEdit()">${_panEdit?'Done':'Edit'}</button>
+  </div>`;
+  if(!total){
+    h+=`<div class="empty-state" style="padding:50px 20px"><div class="empty-icon">🧂</div><div class="empty-title">Pantry's empty</div><div class="empty-sub">Tap ＋ to add the staples you keep on hand. Recipes match against this list.</div></div>`;
+  }
+  state.pantryGroups.forEach((g,gi)=>{
+    if(!g.items.length) return;
+    h+=`<div class="pan-grp">${esc(g.name)}<span class="ct">${g.items.length}</span></div>`;
+    g.items.forEach((raw,ii)=>{
+      const low=panIsLow(raw);
+      const nm=_panEdit
+        ? `<span class="pnm"><span onclick="panRenameStart(${gi},${ii},this)">${esc(capWords(raw))}</span></span>`
+        : `<span class="pnm">${esc(capWords(raw))}</span>`;
+      const left=_panEdit?`<span class="pan-del" onclick="panRemove(${gi},${ii})">−</span>`:`<span class="pdot"></span>`;
+      const right=_panEdit?''
+        : `<span class="pan-pill ${low?'low':'good'}" onclick="panFlag(${gi},${ii})">${low?'RUNNING LOW':'STOCKED'}</span>`;
+      h+=`<div class="pan-row ${low?'low':''}" data-k="${esc(panKey(raw))}">${left}${nm}${right}</div>`;
+    });
+  });
+  if(_panEdit&&total) h+=`<div class="pan-hint">Tap a name to rename · tap − to remove · ＋ to add</div>`;
+  h+=`<div class="pan-fab" onclick="openPantrySheet()">+</div>`;
+  el.innerHTML=h;
+  if(_panFlash){ const r=el.querySelector(`.pan-row[data-k="${CSS.escape(_panFlash)}"]`); if(r){r.classList.add('flash');r.scrollIntoView({block:'center',behavior:'smooth'});} _panFlash=null; }
+}
+function togglePantryEdit(){ _panEdit=!_panEdit; renderPantry(); }
+function panFlag(gi,ii){
+  const raw=state.pantryGroups[gi].items[ii]; if(raw==null) return;
+  const key=panKey(raw);
+  if(state.plan.shopping[key]){ delete state.plan.shopping[key]; showToast(capWords(raw)+' back to stocked'); }
+  else { state.plan.shopping[key]={name:raw,category:categorize(raw)}; showToast('🛒 '+capWords(raw)+' added to your shopping list'); }
+  savePlan(); renderPantry();
+}
+function panRemove(gi,ii){
+  const g=state.pantryGroups[gi]; const raw=g.items[ii]; if(raw==null) return;
+  const key=panKey(raw);
+  g.items.splice(ii,1);
+  if(state.plan.shopping[key]) delete state.plan.shopping[key];
+  state.pantry.delete(key);
+  savePantry(); savePlan();
+  showToast('Removed '+capWords(raw));
+  renderPantry();
+}
+function panRenameStart(gi,ii,span){
+  const raw=state.pantryGroups[gi].items[ii]; if(raw==null) return;
+  const wrap=span.parentElement;
+  wrap.innerHTML=`<input value="${esc(capWords(raw))}" id="prn">`;
+  const inp=document.getElementById('prn'); inp.focus(); inp.select();
+  const save=()=>{
+    const v=inp.value.trim();
+    if(v && v.toLowerCase()!==raw.toLowerCase()){
+      const oldKey=panKey(raw); state.pantryGroups[gi].items[ii]=v.toLowerCase();
+      const newKey=panKey(v);
+      if(state.plan.shopping[oldKey]){ delete state.plan.shopping[oldKey]; state.plan.shopping[newKey]={name:v.toLowerCase(),category:categorize(v)}; savePlan(); }
+      savePantry();
+    }
+    renderPantry();
+  };
+  inp.addEventListener('blur',save);
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') inp.blur(); });
+}
+function openPantrySheet(){
+  _panCat=(state.pantryGroups[0]&&state.pantryGroups[0].name)||'Staples';
+  const names=[...new Set([...state.pantryGroups.map(g=>g.name),...STD_PAN_GROUPS])];
+  document.getElementById('pan-catrow').innerHTML=names.map(n=>`<span class="pan-catp ${n===_panCat?'on':''}" onclick="pickPanCat('${jesc(n)}',this)">${esc(n)}</span>`).join('');
+  document.getElementById('pan-newname').value='';
+  document.getElementById('pan-scrim').classList.add('open');
+  document.getElementById('pan-sheet').classList.add('open');
+  setTimeout(()=>document.getElementById('pan-newname').focus(),250);
+}
+function closePantrySheet(){ document.getElementById('pan-scrim').classList.remove('open'); document.getElementById('pan-sheet').classList.remove('open'); }
+function pickPanCat(n,el){ _panCat=n; document.querySelectorAll('.pan-catp').forEach(p=>p.classList.remove('on')); el.classList.add('on'); }
+function doPantryAdd(){
+  const v=document.getElementById('pan-newname').value.trim();
+  if(!v){ document.getElementById('pan-newname').focus(); return; }
+  let g=state.pantryGroups.find(x=>x.name===_panCat);
+  if(!g){ g={name:_panCat,items:[]}; state.pantryGroups.push(g); }
+  g.items.push(v.toLowerCase());
+  state.pantry.add(panKey(v));
+  savePantry();
+  _panFlash=panKey(v);
+  closePantrySheet(); renderPantry();
+  showToast('Added '+capWords(v)+' to '+_panCat);
+}
+
 function switchTab(tab){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
@@ -2219,6 +2375,7 @@ function switchTab(tab){
   state.currentTab=tab;
   if(tab==='week') renderWeek();
   if(tab==='shop') buildAndRenderShop();
+  if(tab==='pantry') renderPantry();
 }
 
 async function refreshApp(){
@@ -2227,6 +2384,7 @@ async function refreshApp(){
   await loadData(); renderBrowse();
   if(state.currentTab==='week') renderWeek();
   if(state.currentTab==='shop') buildAndRenderShop();
+  if(state.currentTab==='pantry') renderPantry();
   btn.classList.remove('spinning'); btn.disabled=false;
 }
 
