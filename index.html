@@ -480,6 +480,25 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
 .pan-addgo{width:100%;background:var(--accent);border:0;border-radius:13px;padding:14px 0;color:#171207;font:inherit;font-weight:800;font-size:15px;cursor:pointer}
 .pan-addgo:active{transform:scale(.98)}
 @media(min-width:860px){.pan-sheet{left:50%;transform:translateX(-50%) translateY(110%);width:min(560px,94vw);border-radius:22px}.pan-sheet.open{transform:translateX(-50%) translateY(0)}}
+
+/* add-recipe sheet */
+.ar-sub{font-size:13px;color:var(--text3);line-height:1.55;margin-bottom:16px}
+.ar-mode{display:flex;align-items:center;gap:13px;width:100%;text-align:left;background:var(--bg3);border:1px solid var(--sep);border-radius:14px;padding:14px 15px;margin-bottom:10px;cursor:pointer;color:var(--text)}
+.ar-mode:active{transform:scale(.99);opacity:.9}
+.ar-mode .ar-ic{font-size:24px;flex:0 0 auto}
+.ar-mode>span:nth-child(2){flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ar-mode b{font-size:15px;font-weight:700}
+.ar-mode small{font-size:12px;color:var(--text3);line-height:1.4}
+.ar-mode .ar-chev{color:var(--text3);font-size:20px;flex:0 0 auto}
+.ar-pane{margin-top:2px}
+.ar-back{background:none;border:0;color:var(--accent);font:inherit;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px;padding:0}
+.ar-thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.ar-thumbs:empty{display:none}
+.ar-thumb{width:70px;height:70px;border-radius:10px;object-fit:cover;border:1px solid var(--sep);position:relative}
+.ar-thumb-wrap{position:relative}
+.ar-thumb-x{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--accent4);color:#2a120b;font-size:13px;font-weight:800;display:grid;place-items:center;cursor:pointer;border:2px solid var(--bg2)}
+.ar-pick-btn{width:100%;background:transparent;border:1px dashed #3a3324;color:var(--accent);border-radius:12px;padding:12px 0;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;margin-bottom:12px}
+.pan-addgo:disabled{opacity:.45;cursor:default}
 </style>
 </head>
 <body>
@@ -521,8 +540,11 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
 <!-- APP -->
 <div id="app" style="display:none;height:100dvh;flex-direction:column">
   <div class="top-bar">
-    <h1>🍳 Kitchen<span style="font-size:10px;color:var(--text3);font-weight:700;margin-left:7px;vertical-align:middle;letter-spacing:.05em">v14</span></h1>
-    <button class="icon-btn" id="refresh-btn" onclick="refreshApp()" title="Refresh">↻</button>
+    <h1>🍳 Kitchen<span style="font-size:10px;color:var(--text3);font-weight:700;margin-left:7px;vertical-align:middle;letter-spacing:.05em">v15</span></h1>
+    <div style="display:flex;gap:9px">
+      <button class="icon-btn" id="add-recipe-btn" onclick="openAddRecipe()" title="Add recipe">＋</button>
+      <button class="icon-btn" id="refresh-btn" onclick="refreshApp()" title="Refresh">↻</button>
+    </div>
   </div>
   <div class="search-bar" id="search-bar" style="display:none">
     <div class="search-row">
@@ -608,6 +630,32 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
     <button class="dp-cancel" onclick="closeDayPicker()">Cancel</button>
   </div>
 </div>
+
+<!-- ADD RECIPE SHEET -->
+<div class="pan-scrim" id="ar-scrim" onclick="closeAddRecipe()"></div>
+<div class="pan-sheet ar-sheet" id="ar-sheet">
+  <div class="pan-sh"><b id="ar-title">Add a recipe</b><span class="pan-x" onclick="closeAddRecipe()">✕</span></div>
+  <div id="ar-modes">
+    <div class="ar-sub">Snap it, paste it, or drop a link — Claude turns it into a proper recipe card and files it here. Handwritten cards and cookbook pages work too.</div>
+    <button class="ar-mode" onclick="arPick('photo')"><span class="ar-ic">📷</span><span><b>Snap a photo</b><small>Recipe card, cookbook page, or handwritten — add a few shots if it spans pages.</small></span><span class="ar-chev">›</span></button>
+    <button class="ar-mode" onclick="arPick('text')"><span class="ar-ic">📝</span><span><b>Paste text</b><small>Typed it out or copied from somewhere.</small></span><span class="ar-chev">›</span></button>
+    <button class="ar-mode" onclick="arPick('link')"><span class="ar-ic">🔗</span><span><b>Paste a link</b><small>A recipe blog or YouTube video.</small></span><span class="ar-chev">›</span></button>
+  </div>
+  <div id="ar-photo" class="ar-pane" style="display:none">
+    <div class="ar-thumbs" id="ar-thumbs"></div>
+    <button class="ar-pick-btn" onclick="document.getElementById('ar-file').click()">＋ Add photo</button>
+    <button class="pan-addgo" id="ar-photo-go" onclick="arSubmitPhotos()" disabled>Send to my recipe inbox</button>
+  </div>
+  <div id="ar-text" class="ar-pane" style="display:none">
+    <textarea class="pan-txt" id="ar-textarea" style="min-height:150px;resize:vertical" placeholder="Paste the recipe — title, ingredients, steps. Don't worry about formatting."></textarea>
+    <button class="pan-addgo" onclick="arSubmitText()">Send to my recipe inbox</button>
+  </div>
+  <div id="ar-link" class="ar-pane" style="display:none">
+    <input class="pan-txt" id="ar-linkinput" placeholder="https://…" onkeydown="if(event.key==='Enter')arSubmitLink()">
+    <button class="pan-addgo" onclick="arSubmitLink()">Send to my recipe inbox</button>
+  </div>
+</div>
+<input type="file" id="ar-file" accept="image/*" capture="environment" multiple style="display:none" onchange="arFilesPicked(event)">
 
 <!-- PANTRY ADD SHEET -->
 <div class="pan-scrim" id="pan-scrim" onclick="closePantrySheet()"></div>
@@ -2266,6 +2314,84 @@ async function sendMealPlanEmail(){
 }
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
+// ── ADD RECIPE (capture → _Inbox, swept into cards by a scheduled task) ───────
+const INBOX_PATH = CONFIG.RECIPES_PATH + '/_Inbox';
+let _arFiles=[];
+function openAddRecipe(){
+  _arFiles=[]; arResetPanes();
+  document.getElementById('ar-title').textContent='Add a recipe';
+  document.getElementById('ar-modes').style.display='block';
+  document.getElementById('ar-scrim').classList.add('open');
+  document.getElementById('ar-sheet').classList.add('open');
+}
+function closeAddRecipe(){ document.getElementById('ar-scrim').classList.remove('open'); document.getElementById('ar-sheet').classList.remove('open'); }
+function arResetPanes(){ ['ar-photo','ar-text','ar-link'].forEach(id=>document.getElementById(id).style.display='none'); document.getElementById('ar-thumbs').innerHTML=''; document.getElementById('ar-textarea').value=''; document.getElementById('ar-linkinput').value=''; document.getElementById('ar-photo-go').disabled=true; }
+function arBackRow(){ return `<button class="ar-back" onclick="arHome()">‹ Back</button>`; }
+function arHome(){ arResetPanes(); _arFiles=[]; document.getElementById('ar-title').textContent='Add a recipe'; document.getElementById('ar-modes').style.display='block'; }
+function arPick(mode){
+  document.getElementById('ar-modes').style.display='none';
+  const titles={photo:'Snap a photo',text:'Paste text',link:'Paste a link'};
+  document.getElementById('ar-title').innerHTML=titles[mode];
+  const pane=document.getElementById('ar-'+mode); pane.style.display='block';
+  if(!pane.querySelector('.ar-back')) pane.insertAdjacentHTML('afterbegin',arBackRow());
+  if(mode==='photo') document.getElementById('ar-file').click();
+  if(mode==='text') setTimeout(()=>document.getElementById('ar-textarea').focus(),250);
+  if(mode==='link') setTimeout(()=>document.getElementById('ar-linkinput').focus(),250);
+}
+function arFilesPicked(ev){
+  for(const f of ev.target.files) _arFiles.push(f);
+  ev.target.value='';
+  renderArThumbs();
+}
+function renderArThumbs(){
+  const wrap=document.getElementById('ar-thumbs');
+  wrap.innerHTML=_arFiles.map((f,i)=>`<div class="ar-thumb-wrap"><img class="ar-thumb" src="${URL.createObjectURL(f)}"><span class="ar-thumb-x" onclick="arRemoveThumb(${i})">×</span></div>`).join('');
+  document.getElementById('ar-photo-go').disabled=_arFiles.length===0;
+}
+function arRemoveThumb(i){ _arFiles.splice(i,1); renderArThumbs(); }
+
+async function uploadFile(path, file){
+  const tok=await getToken();
+  if(file.size<4*1024*1024){
+    const r=await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${encodeURIComponent(path)}:/content`,{method:'PUT',headers:{Authorization:`Bearer ${tok}`,'Content-Type':file.type||'application/octet-stream'},body:file});
+    if(!r.ok) throw new Error('Upload failed');
+  } else {
+    const sr=await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${encodeURIComponent(path)}:/createUploadSession`,{method:'POST',headers:{Authorization:`Bearer ${tok}`,'Content-Type':'application/json'},body:JSON.stringify({item:{'@microsoft.graph.conflictBehavior':'replace'}})});
+    if(!sr.ok) throw new Error('Upload session failed');
+    const sess=await sr.json();
+    const r=await fetch(sess.uploadUrl,{method:'PUT',headers:{'Content-Length':file.size,'Content-Range':`bytes 0-${file.size-1}/${file.size}`},body:file});
+    if(!r.ok) throw new Error('Upload failed');
+  }
+}
+function inboxFolder(){ return INBOX_PATH+'/'+new Date().toISOString().replace(/[:.]/g,'-'); }
+function arBusy(btn,txt){ btn.dataset.old=btn.textContent; btn.disabled=true; btn.textContent=txt; }
+function arDone(msg){ closeAddRecipe(); showToast(msg); }
+
+async function arSubmitPhotos(){
+  if(!_arFiles.length) return;
+  const btn=document.getElementById('ar-photo-go'); arBusy(btn,'Sending…');
+  try{
+    const folder=inboxFolder();
+    let n=0;
+    for(const f of _arFiles){ n++; const ext=(f.name.split('.').pop()||'jpg').toLowerCase(); await uploadFile(folder+'/img_'+String(n).padStart(2,'0')+'.'+ext, f); }
+    arDone(`Sent ${_arFiles.length} photo${_arFiles.length>1?'s':''} to your recipe inbox 📥`);
+  }catch(e){ btn.disabled=false; btn.textContent=btn.dataset.old||'Send to my recipe inbox'; showToast('Upload failed: '+e.message); }
+}
+async function arSubmitText(){
+  const txt=document.getElementById('ar-textarea').value.trim();
+  if(!txt){ document.getElementById('ar-textarea').focus(); return; }
+  const btn=document.querySelector('#ar-text .pan-addgo'); arBusy(btn,'Sending…');
+  try{ await writeText(inboxFolder()+'/recipe.txt', txt); arDone('Sent to your recipe inbox 📥'); }
+  catch(e){ btn.disabled=false; btn.textContent='Send to my recipe inbox'; showToast('Failed: '+e.message); }
+}
+async function arSubmitLink(){
+  const url=document.getElementById('ar-linkinput').value.trim();
+  if(!url){ document.getElementById('ar-linkinput').focus(); return; }
+  const btn=document.querySelector('#ar-link .pan-addgo'); arBusy(btn,'Sending…');
+  try{ await writeText(inboxFolder()+'/link.txt', url); arDone('Sent to your recipe inbox 📥'); }
+  catch(e){ btn.disabled=false; btn.textContent='Send to my recipe inbox'; showToast('Failed: '+e.message); }
+}
+
 // ── PANTRY TAB ────────────────────────────────────────────────────────────────
 // A pantry item is "Running Low" exactly when it's on the shopping list, so
 // flagging low auto-adds it and checking it off in Shop stocks it back up.
