@@ -500,6 +500,40 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
 .ar-thumb-x{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--accent4);color:#2a120b;font-size:13px;font-weight:800;display:grid;place-items:center;cursor:pointer;border:2px solid var(--bg2)}
 .ar-pick-btn{width:100%;background:transparent;border:1px dashed #3a3324;color:var(--accent);border-radius:12px;padding:12px 0;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;margin-bottom:12px}
 .pan-addgo:disabled{opacity:.45;cursor:default}
+
+/* ================= DISCOVER TAB ================= */
+#panel-discover{padding-top:6px}
+.disc-top{position:sticky;top:0;z-index:6;background:var(--bg);padding-bottom:6px}
+.disc-srchrow{display:flex;gap:9px;align-items:center;padding:2px 0 2px}
+.disc-srch{flex:1;display:flex;align-items:center;gap:9px;background:var(--bg3);border:1px solid var(--sep);border-radius:12px;padding:0 12px}
+.disc-srch svg{flex:0 0 auto;color:var(--text3)}
+.disc-srch input{flex:1;background:none;border:0;outline:none;color:var(--text);font:inherit;font-size:15px;padding:12px 0}
+.disc-srch input::placeholder{color:var(--text3)}
+.disc-dice{flex:0 0 auto;width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#171207;font-size:21px;display:grid;place-items:center;border:0;cursor:pointer}
+.disc-dice:active{transform:scale(.92)}
+.disc-chips{display:flex;gap:7px;overflow-x:auto;padding:9px 0 3px;-webkit-overflow-scrolling:touch}
+.disc-chips::-webkit-scrollbar{height:0}
+.disc-chip{flex:0 0 auto;background:#1a1710;border:1px solid #2b2617;color:#cdc4b4;border-radius:20px;padding:7px 14px;font:inherit;font-size:12.5px;font-weight:700;white-space:nowrap;cursor:pointer}
+.disc-chip.on{background:var(--accent);border-color:var(--accent);color:#171207}
+.disc-quota{font-size:11px;color:var(--text3);text-align:right;padding:2px 2px 0}
+.disc-quota b{color:var(--accent3)}
+.disc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.dcard{position:relative;border-radius:15px;overflow:hidden;border:1px solid var(--sep);height:140px;background:#141210 var(--bgimg) center/cover no-repeat;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.dcard-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dcard-ov{position:absolute;inset:0;background:linear-gradient(0deg,rgba(9,8,7,.95),rgba(9,8,7,.12) 58%,transparent)}
+.dcard-cap{position:absolute;left:10px;right:10px;bottom:9px;z-index:2}
+.dcard-k{font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent3);font-weight:800}
+.dcard-nm{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:14px;color:#fff;line-height:1.1;margin-top:3px;text-shadow:0 2px 10px rgba(0,0,0,.85);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dcard-save{position:absolute;top:8px;right:8px;z-index:3;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);color:var(--accent3);font-size:16px;display:grid;place-items:center;cursor:pointer}
+.dcard-save.saved{background:var(--accent);color:#171207;border-color:var(--accent)}
+.disc-msg{text-align:center;color:var(--text3);font-size:13.5px;padding:50px 24px;line-height:1.6}
+.disc-msg .big{font-size:44px;margin-bottom:12px}
+.disc-spin{display:flex;justify-content:center;padding:60px}
+/* discover detail */
+#disc-detail{z-index:55}
+.disc-week-btn{flex:0 0 auto;background:transparent;border:1px solid var(--green-mid);color:var(--accent);border-radius:15px;padding:0 16px;font:inherit;font-weight:700;font-size:13px;cursor:pointer}
+.disc-src{font-size:12px;color:var(--text3);margin-top:14px}
+.disc-src a{color:var(--accent3)}
 </style>
 </head>
 <body>
@@ -541,7 +575,7 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
 <!-- APP -->
 <div id="app" style="display:none;height:100dvh;flex-direction:column">
   <div class="top-bar">
-    <h1>🍴 MealPlan<span style="font-size:10px;color:var(--text3);font-weight:700;margin-left:7px;vertical-align:middle;letter-spacing:.05em">v16</span></h1>
+    <h1>🍴 MealPlan<span style="font-size:10px;color:var(--text3);font-weight:700;margin-left:7px;vertical-align:middle;letter-spacing:.05em">v17</span></h1>
     <div style="display:flex;gap:9px">
       <button class="icon-btn" id="add-recipe-btn" onclick="openAddRecipe()" title="Add recipe">＋</button>
       <button class="icon-btn" id="refresh-btn" onclick="refreshApp()" title="Refresh">↻</button>
@@ -573,13 +607,16 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
     <div class="tab-panel" id="panel-pantry">
       <div id="pantry-content"></div>
     </div>
+    <div class="tab-panel" id="panel-discover">
+      <div id="discover-content"></div>
+    </div>
   </div>
   <div class="tab-bar">
     <button class="tab-btn active" id="tab-browse" onclick="switchTab('browse')">
       <span class="tab-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></span>Recipes
     </button>
     <button class="tab-btn" id="tab-week" onclick="switchTab('week')">
-      <span class="tab-ic"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><line x1="3.5" y1="9.5" x2="20.5" y2="9.5"/><line x1="8" y1="3" x2="8" y2="6.5"/><line x1="16" y1="3" x2="16" y2="6.5"/><circle cx="12" cy="14.6" r="1.35" fill="currentColor" stroke="none"/></svg></span>This Week
+      <span class="tab-ic"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><line x1="3.5" y1="9.5" x2="20.5" y2="9.5"/><line x1="8" y1="3" x2="8" y2="6.5"/><line x1="16" y1="3" x2="16" y2="6.5"/><circle cx="12" cy="14.6" r="1.35" fill="currentColor" stroke="none"/></svg></span>Week
     </button>
     <button class="tab-btn" id="tab-shop" onclick="switchTab('shop')">
       <span class="tab-ic"><svg viewBox="0 0 24 24"><circle cx="9.5" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2.2l2.1 11a1.4 1.4 0 0 0 1.4 1.1h8.1a1.4 1.4 0 0 0 1.4-1.1L21 7.6H6.3"/></svg></span>Shop
@@ -587,6 +624,27 @@ body{height:auto;min-height:100%;display:block;overflow-x:hidden;overflow-y:auto
     <button class="tab-btn" id="tab-pantry" onclick="switchTab('pantry')">
       <span class="tab-ic"><svg viewBox="0 0 24 24"><path d="M4 3.5h16v4H4z"/><path d="M5 7.5v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-12"/><line x1="10" y1="11.5" x2="14" y2="11.5"/></svg></span>Pantry
     </button>
+    <button class="tab-btn" id="tab-discover" onclick="switchTab('discover')">
+      <span class="tab-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 10.5 10.5 8.5 15.5 13.5 13.5" fill="currentColor" stroke="none"/></svg></span>Discover
+    </button>
+  </div>
+</div>
+
+<!-- DISCOVER DETAIL (slide-in preview of a Spoonacular recipe, z-index 55) -->
+<div class="recipe-detail" id="disc-detail">
+  <div class="detail-header">
+    <button class="back-btn" onclick="closeDiscDetail()">
+      <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M8.5 1L1.5 8L8.5 15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Discover
+    </button>
+    <div class="detail-title" id="disc-detail-title"></div>
+  </div>
+  <div class="detail-body" id="disc-detail-body"></div>
+  <div class="detail-startbar" id="disc-startbar" style="display:none">
+    <div style="display:flex;gap:9px">
+      <button class="start-cook-btn" id="disc-save-btn" onclick="saveDiscoverRecipe()">＋ Save to my recipes</button>
+      <button class="disc-week-btn" onclick="saveDiscoverRecipe(true)">＋ Week</button>
+    </div>
   </div>
 </div>
 
@@ -688,6 +746,7 @@ const CONFIG = {
   RECIPES_PATH: '0 - Data/Recipes',
   PLAN_FILE:    '0 - Data/Recipes/meal-plan.json',
   PANTRY_FILE:  '0 - Data/Recipes/pantry.md',
+  SPOON_PROXY:  'https://mealplan-spoonacular.gronniger.workers.dev',
   SCOPES: 'Files.ReadWrite Mail.ReadWrite offline_access',
   get REDIRECT_URI(){ return location.origin + location.pathname; }
 };
@@ -971,9 +1030,10 @@ async function loadData(){
   }
   await Promise.all(Array.from({length:CONC},worker));
   recipes.sort((a,b)=>a.title.localeCompare(b.title));
-  // Resolve hero photo → auth-fetched graph:// url
+  // Resolve hero photo → remote URL (Discovery imports) or auth-fetched graph:// url (local jpg)
   for(const r of recipes){
     let photo=r.photo;
+    if(photo && /^https?:\/\//i.test(photo)){ r.thumbnailUrl=photo; continue; }
     if(!photo && state.jpgFiles.has(r.title+'.jpg')) photo=r.title+'.jpg';
     if(photo && state.jpgFiles.has(photo)){ r.thumbnailUrl='graph://'+CONFIG.RECIPES_PATH+'/'+photo; r.photoFile=photo; }
   }
@@ -2393,6 +2453,162 @@ async function arSubmitLink(){
   catch(e){ btn.disabled=false; btn.textContent='Send to my recipe inbox'; showToast('Failed: '+e.message); }
 }
 
+// ── DISCOVER (Spoonacular via the Cloudflare Worker) ──────────────────────────
+const DISCOVER_FILTERS = [
+  {label:'All',        params:{}},
+  {label:'Quick',      params:{maxReadyTime:'30'}},
+  {label:'Healthy',    params:{sort:'healthiness'}},
+  {label:'Italian',    params:{cuisine:'italian'}},
+  {label:'Asian',      params:{cuisine:'asian'}},
+  {label:'Mexican',    params:{cuisine:'mexican'}},
+  {label:'Indian',     params:{cuisine:'indian'}},
+  {label:'Vegetarian', params:{diet:'vegetarian'}},
+  {label:'Vegan',      params:{diet:'vegan'}},
+];
+state.discover = {query:'', filter:'All', results:[], loading:false, loaded:false, quota:null, view:null, error:null};
+let _discTimer=null;
+
+function renderDiscover(){
+  const el=document.getElementById('discover-content'); if(!el) return;
+  const d=state.discover;
+  let h=`<div class="disc-top">
+    <div class="disc-srchrow">
+      <div class="disc-srch"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        <input id="disc-input" type="search" placeholder="Search any recipe…" value="${esc(d.query)}" oninput="discInput(this.value)" onkeydown="if(event.key==='Enter')discSearchNow()"></div>
+      <button class="disc-dice" onclick="discSurprise()" title="Surprise me">🎲</button>
+    </div>
+    <div class="disc-chips">${DISCOVER_FILTERS.map(f=>`<button class="disc-chip ${d.filter===f.label?'on':''}" onclick="discSetFilter('${f.label}')">${f.label}</button>`).join('')}</div>
+    ${d.quota!=null?`<div class="disc-quota"><b>${Math.round(d.quota)}</b> recipe points left today</div>`:''}
+  </div><div id="disc-results">${discResultsHTML()}</div>`;
+  el.innerHTML=h;
+}
+function discResultsHTML(){
+  const d=state.discover;
+  if(d.loading) return `<div class="disc-spin"><div class="spinner"></div></div>`;
+  if(d.error) return `<div class="disc-msg"><div class="big">😕</div>${esc(d.error)}</div>`;
+  if(!d.results.length) return `<div class="disc-msg"><div class="big">🔍</div>Nothing found — try another search or filter.</div>`;
+  const saved=new Set(state.index.recipes.map(r=>r.title.toLowerCase()));
+  return `<div class="disc-grid">${d.results.map((r,i)=>{
+    const isSaved=saved.has((r.title||'').toLowerCase());
+    const k=[(r.cuisines&&r.cuisines[0])||'', r.readyInMinutes?r.readyInMinutes+' min':''].filter(Boolean).join(' · ');
+    return `<div class="dcard" onclick="openDiscDetail(${i})">
+      ${r.image?`<img class="dcard-img" src="${esc(r.image)}" loading="lazy" onerror="this.style.display='none'">`:''}
+      <div class="dcard-ov"></div>
+      <button class="dcard-save ${isSaved?'saved':''}" onclick="event.stopPropagation();quickSaveDiscover(${i},this)">${isSaved?'✓':'＋'}</button>
+      <div class="dcard-cap"><div class="dcard-k">${esc(k)}</div><div class="dcard-nm">${esc(r.title||'')}</div></div>
+    </div>`;
+  }).join('')}</div>`;
+}
+function discRerenderResults(){ const el=document.getElementById('disc-results'); if(el) el.innerHTML=discResultsHTML(); }
+function discInput(v){ state.discover.query=v; clearTimeout(_discTimer); _discTimer=setTimeout(()=>discSearch(),450); }
+function discSearchNow(){ clearTimeout(_discTimer); discSearch(); }
+function discSetFilter(f){ state.discover.filter=f; renderDiscover(); discSearch(); }
+
+async function discSearch(){
+  const d=state.discover;
+  d.loading=true; d.error=null; discRerenderResults();
+  try{
+    const f=DISCOVER_FILTERS.find(x=>x.label===d.filter)||{params:{}};
+    const p=new URLSearchParams();
+    if(d.query.trim()) p.set('query', d.query.trim());
+    for(const [k,v] of Object.entries(f.params)) p.set(k,v);
+    if(!p.get('query')&&!p.get('sort')&&!p.get('cuisine')&&!p.get('diet')&&!p.get('maxReadyTime')) p.set('sort','popularity');
+    p.set('number','12');
+    const r=await fetch(CONFIG.SPOON_PROXY+'/search?'+p.toString());
+    const ql=r.headers.get('X-API-Quota-Left'); if(ql!=null) d.quota=parseFloat(ql);
+    if(r.status===402){ d.error="You're out of recipe points for today — they reset at midnight."; d.results=[]; }
+    else if(!r.ok){ d.error='Discovery is unavailable right now.'; d.results=[]; }
+    else { const j=await r.json(); d.results=j.results||[]; d.loaded=true; }
+  }catch(e){ d.error='Could not reach Discovery — check your connection.'; d.results=[]; }
+  d.loading=false; renderDiscover();
+}
+async function discSurprise(){
+  const d=state.discover; d.loading=true; d.error=null; renderDiscover();
+  try{
+    const r=await fetch(CONFIG.SPOON_PROXY+'/random?number=1');
+    const ql=r.headers.get('X-API-Quota-Left'); if(ql!=null) d.quota=parseFloat(ql);
+    const j=await r.json(); const rec=(j.recipes||[])[0];
+    d.loading=false;
+    if(rec){ if(!d.results.some(x=>x.id===rec.id)) d.results=[rec,...d.results]; d.loaded=true; renderDiscover(); openDiscDetailObj(rec); }
+    else { renderDiscover(); showToast('No surprise this time — try again'); }
+  }catch(e){ d.loading=false; d.error='Could not reach Discovery.'; renderDiscover(); }
+}
+
+function stripHtml(s){ return (s||'').replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim(); }
+function sanitizeName(t){ return (t||'Recipe').replace(/[\\/:*?"<>|]/g,'').replace(/\s+/g,' ').trim().slice(0,80)||'Recipe'; }
+function spoonToRecipe(s){
+  const title=sanitizeName(s.title);
+  const groups=[{name:'', items:(s.extendedIngredients||[]).map(i=>i.original||i.originalName||i.name).filter(Boolean)}];
+  const steps=[];
+  for(const grp of (s.analyzedInstructions||[])) for(const st of (grp.steps||[])) if(st.step) steps.push({title:'', body:st.step.trim()});
+  const tags=[...new Set([...(s.cuisines||[]),...((s.dishTypes||[]).slice(0,2)), s.vegan?'vegan':(s.vegetarian?'vegetarian':''), s.glutenFree?'gluten-free':'', (s.readyInMinutes&&s.readyInMinutes<=30)?'quick':''].map(x=>(x||'').toLowerCase()).filter(Boolean))].slice(0,6);
+  let notes=stripHtml(s.summary||'');
+  if(notes.length>320) notes=notes.slice(0,317).replace(/\s+\S*$/,'')+'…';
+  if(s.sourceName) notes=(notes?notes+' ':'')+'(via '+s.sourceName+')';
+  return { filename:title+'.md', title,
+    subtitle:(s.dishTypes&&s.dishTypes[0])?s.dishTypes[0].replace(/\b\w/g,c=>c.toUpperCase()):'',
+    cuisine:(s.cuisines&&s.cuisines[0])||'', servings:s.servings?String(s.servings):'',
+    prepTime:s.readyInMinutes?s.readyInMinutes+' min':'', tags,
+    source:s.sourceUrl||s.spoonacularSourceUrl||'', photo:s.image||'',
+    rating:'', lastMade:'', ingredientGroups:groups, steps, notes };
+}
+async function doSaveSpoon(s, startBtn, cardBtn){
+  const existing=state.index.recipes.find(r=>r.title.toLowerCase()===sanitizeName(s.title).toLowerCase());
+  if(existing){ showToast('Already in your recipes'); if(cardBtn){cardBtn.classList.add('saved');cardBtn.textContent='✓';} return existing; }
+  const rec=spoonToRecipe(s);
+  if(startBtn){ startBtn.disabled=true; startBtn.textContent='Saving…'; }
+  try{
+    await writeText(CONFIG.RECIPES_PATH+'/'+rec.filename, recipeToMd(rec));
+    rec.thumbnailUrl=rec.photo;
+    state.index.recipes.push(rec);
+    state.index.recipes.sort((a,b)=>a.title.localeCompare(b.title));
+    state.filteredRecipes=[...state.index.recipes];
+    try{ renderBrowse(); }catch(e){}
+    showToast('Saved to your recipes ✓');
+    if(cardBtn){ cardBtn.classList.add('saved'); cardBtn.textContent='✓'; }
+    if(startBtn){ startBtn.disabled=true; startBtn.textContent='✓ Saved'; }
+    return rec;
+  }catch(e){ console.warn('Save failed',e); showToast('Save failed — try again');
+    if(startBtn){ startBtn.disabled=false; startBtn.textContent='＋ Save to my recipes'; } return null; }
+}
+async function quickSaveDiscover(i, el){ const s=state.discover.results[i]; if(s) await doSaveSpoon(s,null,el); }
+async function saveDiscoverRecipe(alsoWeek){
+  const s=state.discover.view; if(!s) return;
+  const rec=await doSaveSpoon(s, document.getElementById('disc-save-btn'));
+  if(rec && alsoWeek){ closeDiscDetail(); showOpenDayPicker(rec.filename, false); }
+}
+
+function openDiscDetail(i){ const s=state.discover.results[i]; if(s) openDiscDetailObj(s); }
+function openDiscDetailObj(s){
+  state.discover.view=s;
+  document.getElementById('disc-detail-title').textContent=s.title||'';
+  const k=[(s.cuisines&&s.cuisines[0])||'', s.readyInMinutes?s.readyInMinutes+' min':'', s.servings?'Serves '+s.servings:''].filter(Boolean).join(' · ');
+  const ings=(s.extendedIngredients||[]).map(i=>i.original||i.name).filter(Boolean);
+  const steps=[]; for(const g of (s.analyzedInstructions||[])) for(const st of (g.steps||[])) if(st.step) steps.push(st.step.trim());
+  const saved=state.index.recipes.some(r=>r.title.toLowerCase()===sanitizeName(s.title).toLowerCase());
+  let h=`<div class="detail-hero" style="background:linear-gradient(135deg,#2a2113,#141210)">
+    ${s.image?`<img class="thumb-img" src="${esc(s.image)}" onerror="this.remove()">`:''}
+    <div class="detail-hero-fade" style="background:linear-gradient(transparent,#0d0c0a)"></div>
+    <div class="detail-hero-cap"><div class="dh-eyebrow">${esc((s.cuisines&&s.cuisines[0])||'Discover')}</div><div class="dh-title">${esc(s.title||'')}</div></div></div>`;
+  h+=`<div class="detail-metabar">${k?`<span class="detail-meta-chip">${esc(k)}</span>`:''}<span class="detail-meta-chip">via Spoonacular</span></div>`;
+  h+=`<div class="rtabwrap">`;
+  h+=`<div class="igrp need">Ingredients<span class="ict">${ings.length}</span></div>`;
+  h+=ings.map(x=>`<div class="irow"><span class="idot" style="border:1.5px dashed var(--accent3)"></span><span class="inm">${esc(x)}</span></div>`).join('');
+  if(steps.length){
+    h+=`<div class="igrp need" style="margin-top:18px">Steps<span class="ict">${steps.length}</span></div><div class="timeline">`;
+    h+=steps.map((st,idx)=>`<div class="tl-step"><div class="tl-rail"><div class="tl-num">${idx+1}</div></div><div class="tl-body"><div class="tl-text">${esc(st)}</div></div></div>`).join('');
+    h+=`</div>`;
+  }
+  if(s.sourceUrl) h+=`<div class="disc-src">Source: <a href="${esc(s.sourceUrl)}" target="_blank" rel="noopener">${esc(s.sourceName||s.sourceUrl)}</a></div>`;
+  h+=`</div>`;
+  document.getElementById('disc-detail-body').innerHTML=h;
+  document.getElementById('disc-detail-body').scrollTop=0;
+  const sb=document.getElementById('disc-save-btn'); if(sb){ sb.disabled=saved; sb.textContent=saved?'✓ In your recipes':'＋ Save to my recipes'; }
+  document.getElementById('disc-startbar').style.display='block';
+  document.getElementById('disc-detail').classList.add('open');
+}
+function closeDiscDetail(){ document.getElementById('disc-detail').classList.remove('open'); document.getElementById('disc-startbar').style.display='none'; }
+
 // ── PANTRY TAB ────────────────────────────────────────────────────────────────
 // A pantry item is "Running Low" exactly when it's on the shopping list, so
 // flagging low auto-adds it and checking it off in Shop stocks it back up.
@@ -2503,6 +2719,7 @@ function switchTab(tab){
   if(tab==='week') renderWeek();
   if(tab==='shop') buildAndRenderShop();
   if(tab==='pantry') renderPantry();
+  if(tab==='discover'){ renderDiscover(); if(!state.discover.loaded && !state.discover.loading) discSearch(); }
 }
 
 async function refreshApp(){
@@ -2512,6 +2729,7 @@ async function refreshApp(){
   if(state.currentTab==='week') renderWeek();
   if(state.currentTab==='shop') buildAndRenderShop();
   if(state.currentTab==='pantry') renderPantry();
+  if(state.currentTab==='discover') renderDiscover();
   btn.classList.remove('spinning'); btn.disabled=false;
 }
 
